@@ -1,0 +1,12 @@
+# On ignore les dossiers de configuration de l'IDE (IntelliJ)
+.idea/
+*.iml
+
+# On ignore les fichiers compilés (le binaire .class)
+# Seul le code source .java doit être sur Git
+out/
+bin/
+*.class
+
+# On ignore les fichiers temporaires du système
+.DS_Store
