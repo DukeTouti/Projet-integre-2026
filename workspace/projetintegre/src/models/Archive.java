@@ -1,10 +1,10 @@
-package projetintegre.models;
+package models;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import projetintegre.models.enums.StatutDossier;
+import models.enums.StatutDossier;
 
 public class Archive {
 	private int id;

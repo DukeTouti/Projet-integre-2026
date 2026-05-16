@@ -1,4 +1,4 @@
-package projetintegre.models;
+package models;
 
 import java.util.Date;
 

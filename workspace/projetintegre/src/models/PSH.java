@@ -1,8 +1,8 @@
-package projetintegre.models;
+package models;
 
 import java.util.Date;
 
-import projetintegre.models.enums.Role;
+import models.enums.Role;
 
 public class PSH extends Utilisateur {
 	private String typeHandicap;

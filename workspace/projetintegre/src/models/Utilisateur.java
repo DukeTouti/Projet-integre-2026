@@ -1,9 +1,9 @@
-package projetintegre.models;
+package models;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import projetintegre.models.enums.Role;
+import models.enums.Role;
 
 public abstract class Utilisateur {
 	protected int id;

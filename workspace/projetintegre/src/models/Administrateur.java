@@ -1,6 +1,6 @@
-package projetintegre.models;
+package models;
 
-import projetintegre.models.enums.Role;
+import models.enums.Role;
 
 public class Administrateur extends Utilisateur {
 	private String matricule;
