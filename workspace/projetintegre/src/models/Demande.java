@@ -1,9 +1,9 @@
-package projetintegre.models;
+package models;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import projetintegre.models.enums.TypeDemande;
+import models.enums.TypeDemande;
 
 public class Demande extends Dossier {
 	private TypeDemande typeDemande;

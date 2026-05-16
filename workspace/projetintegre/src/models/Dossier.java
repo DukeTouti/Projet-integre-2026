@@ -1,10 +1,10 @@
-package projetintegre.models;
+package models;
 
 import java.util.Date;
 
-import projetintegre.models.enums.StatutDossier;
-import projetintegre.models.interfaces.IArchivable;
-import projetintegre.models.interfaces.IStatistique;
+import models.enums.StatutDossier;
+import models.interfaces.IArchivable;
+import models.interfaces.IStatistique;
 
 public abstract class Dossier implements IArchivable, IStatistique {
 

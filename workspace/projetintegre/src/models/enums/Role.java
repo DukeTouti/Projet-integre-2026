@@ -1,4 +1,4 @@
-package projetintegre.models.enums;
+package models.enums;
 
 public enum Role {
 	PSH, ADMINISTRATEUR
