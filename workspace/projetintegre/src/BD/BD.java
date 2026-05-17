@@ -8,7 +8,7 @@ public class BD {
 
     private static final String URL      = "jdbc:mysql://localhost:3306/projetintegre";
     private static final String USER     = "root";
-    private static final String PASSWORD = "";
+    private static final String PASSWORD = "Root@1234";
 
     private static Connection conn = null;
 

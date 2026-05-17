@@ -5,10 +5,10 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
+import controllers.AuthController;
 import controllers.VoskSpeechController;
 import controllers.TTSController;
-import BD.BD;
-import java.sql.*;
+import models.Utilisateur;
 
 public class LoginView extends JFrame {
 
@@ -161,43 +161,29 @@ public class LoginView extends JFrame {
         });
 
         btnConnexion.addActionListener(e -> {
-            String identifiant = txtIdentifiant.getText().trim();
-            String motDePasse = new String(txtPassword.getPassword());
+            String email = txtIdentifiant.getText().trim();
+            String mdp   = new String(txtPassword.getPassword());
 
-            if (identifiant.isEmpty() || motDePasse.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Veuillez remplir tous les champs.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            if (email.isEmpty() || mdp.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                    "Veuillez remplir tous les champs.",
+                    "Champs manquants", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            try {
-                Connection conn = BD.getConnection();
-                if (conn == null) {
-                    JOptionPane.showMessageDialog(this, "Impossible de se connecter à la base de données.", "Erreur BD", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                PreparedStatement ps = conn.prepareStatement(
-                    "SELECT role FROM utilisateur WHERE email = ? AND motDePasse = ? AND actif = TRUE"
-                );
-                ps.setString(1, identifiant);
-                ps.setString(2, motDePasse);
-                ResultSet rs = ps.executeQuery();
+            Utilisateur u = AuthController.connexion(email, mdp);
 
-                if (rs.next()) {
-                    String role = rs.getString("role");
-                    VoskSpeechController.stopListening();
-                    dispose();
-                    if ("ADMINISTRATEUR".equals(role)) {
-                        new AdminMainView();
-                    } else {
-                        new PshMainView();
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(this, "Identifiant ou mot de passe incorrect.", "Échec de connexion", JOptionPane.ERROR_MESSAGE);
-                }
-                rs.close();
-                ps.close();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Erreur : " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+            if (u == null) {
+                JOptionPane.showMessageDialog(this,
+                    "Email ou mot de passe incorrect.",
+                    "Échec de connexion", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            dispose();
+            switch (u.getRole()) {
+                case PSH            -> new PshMainView();
+                case ADMINISTRATEUR -> new AdminMainView();
             }
         });
 
