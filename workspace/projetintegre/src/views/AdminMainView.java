@@ -2,8 +2,10 @@ package views;
 
 import views.ADMINjpanel.*;
 import javax.swing.*;
+import javax.swing.border.AbstractBorder;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
 
 public class AdminMainView extends JFrame {
     private JPanel cardPanel;
@@ -45,7 +47,7 @@ public class AdminMainView extends JFrame {
         cardPanel.add(new AdminDossiersListPanel(), "DOSSIERS_LIST");
         cardPanel.add(new AdminComplaintsPanel(), "COMPLAINTS");
         cardPanel.add(new AdminStatsPanel(), "STATS");
-        cardPanel.add(new AdminDashboardPanel(), "ARCHIVES");
+        cardPanel.add(new AdminArchivesPanel(), "ARCHIVES");
 
         add(cardPanel, BorderLayout.CENTER);
 
@@ -67,11 +69,23 @@ public class AdminMainView extends JFrame {
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         rightPanel.setOpaque(false);
 
-        btnAccess = new JButton("👁️ Mode Accessibilité (AAA) : ON");
+        btnAccess = new JButton("Mode Accessibilité (AAA) : ON") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
+                super.paintComponent(g2);
+                g2.dispose();
+            }
+        };
+
         btnAccess.setFont(new Font("SansSerif", Font.BOLD, 11));
         btnAccess.setBackground(Color.BLACK);
         btnAccess.setForeground(TEXT_ACCESSIBILITY);
-        btnAccess.setBorder(BorderFactory.createLineBorder(TEXT_ACCESSIBILITY, 2));
+        btnAccess.setContentAreaFilled(false);
+        btnAccess.setFocusPainted(false);
 
         btnAccess.addActionListener(e -> {
             isAccessibilityMode = !isAccessibilityMode;
@@ -122,7 +136,17 @@ public class AdminMainView extends JFrame {
     }
 
     private JButton createSidebarButton(String text) {
-        JButton button = new JButton(text);
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
+                super.paintComponent(g2);
+                g2.dispose();
+            }
+        };
         button.setFont(new Font("SansSerif", Font.BOLD, 13));
         button.setForeground(TEXT_ACCESSIBILITY);
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -157,13 +181,15 @@ public class AdminMainView extends JFrame {
                 btnAccess.setText("👁️ Mode Accessibilité (AAA) : ON");
                 btnAccess.setBackground(Color.BLACK);
                 btnAccess.setForeground(TEXT_ACCESSIBILITY);
-                btnAccess.setBorder(BorderFactory.createLineBorder(TEXT_ACCESSIBILITY, 2));
+                btnAccess.setBorder(new RoundedBorder(12, TEXT_ACCESSIBILITY));
             } else {
                 btnAccess.setText("👁️ Mode Accessibilité (AAA) : OFF");
                 btnAccess.setBackground(TEXT_ACCESSIBILITY);
                 btnAccess.setForeground(Color.BLACK);
-                btnAccess.setBorder(UIManager.getBorder("Button.border"));
+                btnAccess.setBorder(new RoundedBorder(12, BORDER_STANDARD));
             }
+        } else if (btnAccess != null) {
+            btnAccess.setBorder(new RoundedBorder(12, TEXT_ACCESSIBILITY));
         }
 
         applyThemeRecursively(this, currentBg, currentText, currentBorder);
@@ -172,15 +198,20 @@ public class AdminMainView extends JFrame {
     }
 
     private void applyThemeRecursively(Component comp, Color bg, Color text, Color border) {
-        if (comp instanceof JPanel || comp instanceof JLabel || comp instanceof JTextArea || comp instanceof JTextField) {
+        if (comp instanceof JPanel || comp instanceof JLabel) {
             comp.setBackground(bg);
             comp.setForeground(text);
+        }
 
-            if (comp instanceof JTextArea || comp instanceof JTextField) {
-                ((JComponent) comp).setBorder(BorderFactory.createLineBorder(isAccessibilityMode ? text : border, 1));
-                if (comp instanceof JTextArea) ((JTextArea) comp).setCaretColor(text);
-                if (comp instanceof JTextField) ((JTextField) comp).setCaretColor(text);
-            }
+        if (comp instanceof JTextArea || comp instanceof JTextField) {
+            comp.setBackground(bg);
+            comp.setForeground(text);
+            ((JComponent) comp).setBorder(BorderFactory.createCompoundBorder(
+                    new RoundedBorder(10, isAccessibilityMode ? text : border),
+                    BorderFactory.createEmptyBorder(5, 8, 5, 8)
+            ));
+            if (comp instanceof JTextArea) ((JTextArea) comp).setCaretColor(text);
+            if (comp instanceof JTextField) ((JTextField) comp).setCaretColor(text);
         }
 
         if (comp instanceof JTable) {
@@ -199,14 +230,14 @@ public class AdminMainView extends JFrame {
         }
 
         if (comp instanceof JScrollPane) {
-            ((JScrollPane) comp).setBorder(BorderFactory.createLineBorder(border, 1));
+            ((JScrollPane) comp).setBorder(new RoundedBorder(12, border));
             ((JScrollPane) comp).getViewport().setBackground(bg);
         }
 
         if (comp instanceof JComboBox) {
             comp.setBackground(bg);
             comp.setForeground(text);
-            ((JComboBox<?>) comp).setBorder(BorderFactory.createLineBorder(isAccessibilityMode ? text : border, 1));
+            ((JComboBox<?>) comp).setBorder(new RoundedBorder(10, isAccessibilityMode ? text : border));
 
             Object renderer = ((JComboBox<?>) comp).getRenderer();
             if (renderer instanceof JComponent) {
@@ -216,26 +247,37 @@ public class AdminMainView extends JFrame {
         }
 
         if (comp instanceof JButton) {
-            if (comp != btnAccess) {
+            if (comp != btnAccess && comp.getParent() != sidebar) {
                 comp.setForeground(text);
+                JButton btn = (JButton) comp;
+                btn.setContentAreaFilled(false);
+                btn.setOpaque(false);
+                btn.setBorderPainted(false);
+                btn.setFocusPainted(false);
 
-                if (isAccessibilityMode) {
-                    comp.setBackground(bg);
-                    ((JButton) comp).setContentAreaFilled(false);
-                    ((JButton) comp).setOpaque(true);
-                    ((JButton) comp).setBorder(BorderFactory.createCompoundBorder(
-                            BorderFactory.createLineBorder(text, 2),
-                            BorderFactory.createEmptyBorder(8, 12, 8, 12)
-                    ));
-                } else {
-                    comp.setBackground(UIManager.getColor("Button.background"));
-                    comp.setForeground(TEXT_STANDARD);
-                    ((JButton) comp).setContentAreaFilled(true);
-                    ((JButton) comp).setBorder(BorderFactory.createCompoundBorder(
-                            BorderFactory.createLineBorder(border, 1),
-                            BorderFactory.createEmptyBorder(8, 12, 8, 12)
-                    ));
-                }
+                btn.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
+                    @Override
+                    public void paint(Graphics g, JComponent c) {
+                        Graphics2D g2 = (Graphics2D) g.create();
+                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                        if (isAccessibilityMode) {
+                            g2.setColor(btn.getModel().isRollover() ? bg.brighter() : bg);
+                            g2.fill(new RoundRectangle2D.Float(0, 0, btn.getWidth(), btn.getHeight(), 12, 12));
+                            g2.setColor(text);
+                            g2.setStroke(new BasicStroke(2.0f));
+                            g2.draw(new RoundRectangle2D.Float(1, 1, btn.getWidth() - 2, btn.getHeight() - 2, 12, 12));
+                        } else {
+                            g2.setColor(btn.getModel().isRollover() ? UIManager.getColor("Button.background").darker() : UIManager.getColor("Button.background"));
+                            g2.fill(new RoundRectangle2D.Float(0, 0, btn.getWidth(), btn.getHeight(), 12, 12));
+                            g2.setColor(border);
+                            g2.setStroke(new BasicStroke(1.0f));
+                            g2.draw(new RoundRectangle2D.Float(0, 0, btn.getWidth() - 1, btn.getHeight() - 1, 12, 12));
+                        }
+                        g2.dispose();
+                        super.paint(g, c);
+                    }
+                });
+                btn.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
             }
         }
 
@@ -246,8 +288,26 @@ public class AdminMainView extends JFrame {
         }
     }
 
+    private static class RoundedBorder extends AbstractBorder {
+        private final int radius;
+        private final Color color;
+
+        RoundedBorder(int radius, Color color) {
+            this.radius = radius;
+            this.color = color;
+        }
+
+        @Override
+        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(color);
+            g2.draw(new RoundRectangle2D.Float(x, y, width - 1, height - 1, radius, radius));
+            g2.dispose();
+        }
+    }
+
     public static void main(String[] args) {
-        // Lance l'interface graphique dans le thread approprié de Swing
         SwingUtilities.invokeLater(() -> {
             new AdminMainView();
         });
