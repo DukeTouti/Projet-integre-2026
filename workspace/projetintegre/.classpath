@@ -6,27 +6,37 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="/home/yahya-hallal/Desktop/Projet-intégré/Projet-integre-2026/workspace/lib/vosk-0.3.45.jar">
+	<classpathentry kind="lib" path="/home/hathouti/Bureau/UIR/3A/S6/Projet/workspace/lib/vosk-0.3.45.jar">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/home/yahya-hallal/Desktop/Projet-intégré/Projet-integre-2026/workspace/lib/json-simple-1.1.1.jar">
+	<classpathentry kind="lib" path="/home/hathouti/Bureau/UIR/3A/S6/Projet/workspace/lib/json-simple-1.1.1.jar">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/home/yahya-hallal/Desktop/Projet-intégré/Projet-integre-2026/workspace/lib/jna-platform-5.13.0.jar">
+	<classpathentry kind="lib" path="/home/hathouti/Bureau/UIR/3A/S6/Projet/workspace/lib/jna-platform-5.13.0.jar">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/home/yahya-hallal/Desktop/Projet-intégré/Projet-integre-2026/workspace/lib/jna-5.13.0.jar">
+	<classpathentry kind="lib" path="/home/hathouti/Bureau/UIR/3A/S6/Projet/workspace/lib/jna-5.13.0.jar">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/home/yahya-hallal/Desktop/Projet-intégré/Projet-integre-2026/workspace/lib/jlayer-1.0.1.jar">
+	<classpathentry kind="lib" path="/home/hathouti/Bureau/UIR/3A/S6/Projet/workspace/lib/jlayer-1.0.1.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/home/hathouti/Bureau/UIR/3A/S6/Projet/workspace/lib/jbcrypt-0.4.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/home/hathouti/Bureau/UIR/3A/S6/Projet/workspace/lib/mysql-connector-j-8.0.33.jar">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>

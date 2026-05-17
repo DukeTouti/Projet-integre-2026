@@ -1,4 +1,4 @@
-package projetintegre.views.PSHjpanel;
+package views.PSHjpanel;
 
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;

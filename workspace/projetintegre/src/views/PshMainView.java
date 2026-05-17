@@ -48,8 +48,8 @@ public class PshMainView extends JFrame {
         cardPanel.add(new views.PSHjpanel.StudentDashboardPanel(), "DASHBOARD");
         cardPanel.add(new views.PSHjpanel.NewDossierPanel(), "NEW_DOSSIER");
         cardPanel.add(new views.PSHjpanel.MyDossiersPanel(), "MY_DOSSIERS");
-        cardPanel.add(new projetintegre.views.PSHjpanel.ComplaintsPanel(), "COMPLAINTS");
-        cardPanel.add(new projetintegre.views.PSHjpanel.StudentProfilePanel(), "PROFILE");
+        cardPanel.add(new views.PSHjpanel.ComplaintsPanel(), "COMPLAINTS");
+        cardPanel.add(new views.PSHjpanel.StudentProfilePanel(), "PROFILE");
 
         contentWrapper = new JPanel(new BorderLayout());
         contentWrapper.setOpaque(false);
