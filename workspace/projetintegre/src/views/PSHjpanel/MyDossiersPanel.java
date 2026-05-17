@@ -1,8 +1,10 @@
-package views.PSHjpanel;
+package projetintegre.views.PSHjpanel;
 
 import javax.swing.*;
+import javax.swing.border.AbstractBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
 
 public class MyDossiersPanel extends JPanel {
 
@@ -10,15 +12,12 @@ public class MyDossiersPanel extends JPanel {
         setLayout(new BorderLayout(20, 20));
         setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
-        // 1. En-tête du Panel
         JLabel titleLabel = new JLabel("🗂️ Historique Global de mes Dossiers (Demandes & Réclamations)");
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
         add(titleLabel, BorderLayout.NORTH);
 
-        // 2. Colonnes calquées sur la classe Dossier, Demande et StatutDossier
         String[] columnNames = {"ID Dossier", "Type de Dossier", "Description", "Date Création", "Date MAJ", "Statut"};
 
-        // Simulation de données respectant l'énumération StatutDossier
         Object[][] data = {
                 {1, "DEMANDE (AMENAGEMENT_EXAMEN)", "Demande de tiers-temps pour le CF", "12/05/2026", "15/05/2026", "ACCEPTEE"},
                 {2, "RECLAMATION", "Contestation refus aménagement sur module Compilation", "14/05/2026", "14/05/2026", "EN_ATTENTE"},
@@ -38,21 +37,73 @@ public class MyDossiersPanel extends JPanel {
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
         table.getTableHeader().setReorderingAllowed(false);
 
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(0x374151), 1));
+        JScrollPane scrollPane = new JScrollPane(table) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(table.getBackground());
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
+                super.paintComponent(g2);
+                g2.dispose();
+            }
+        };
+        scrollPane.setBorder(new RoundedBorder(12, new Color(0x374151)));
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
 
         add(scrollPane, BorderLayout.CENTER);
 
-        // 3. Boutons d'action
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         actionPanel.setOpaque(false);
 
-        JButton btnVoirDetails = new JButton("👁️ Consulter le dossier");
-        JButton btnPieces = new JButton("📎 Voir les Pièces Justificatives"); // Lié à la classe PieceJustificative
+        JButton btnVoirDetails = new JButton("🔍 Voir Pièces & Détails") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
+                super.paintComponent(g2);
+                g2.dispose();
+            }
+        };
+        btnVoirDetails.setFont(new Font("SansSerif", Font.BOLD, 12));
+        btnVoirDetails.setContentAreaFilled(false);
+        btnVoirDetails.setFocusPainted(false);
+        btnVoirDetails.setBorder(new RoundedBorder(12, Color.GRAY));
+        btnVoirDetails.setPreferredSize(new Dimension(160, 35));
+
+        btnVoirDetails.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row != -1) {
+                Object id = table.getValueAt(row, 0);
+                JOptionPane.showMessageDialog(this, "Chargement des détails de l'objet Dossier ID #" + id + "\nFichiers binaires rattachés récupérés.", "Détails Dossier", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Veuillez sélectionner un dossier dans le tableau.", "Sélection requise", JOptionPane.WARNING_MESSAGE);
+            }
+        });
 
         actionPanel.add(btnVoirDetails);
-        actionPanel.add(btnPieces);
-
         add(actionPanel, BorderLayout.SOUTH);
+    }
+
+    private static class RoundedBorder extends AbstractBorder {
+        private final int radius;
+        private final Color color;
+
+        RoundedBorder(int radius, Color color) {
+            this.radius = radius;
+            this.color = color;
+        }
+
+        @Override
+        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(color);
+            g2.draw(new RoundRectangle2D.Float(x, y, width - 1, height - 1, radius, radius));
+            g2.dispose();
+        }
     }
 }

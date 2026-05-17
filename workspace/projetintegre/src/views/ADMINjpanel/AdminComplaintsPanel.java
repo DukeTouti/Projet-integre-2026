@@ -1,4 +1,4 @@
-package views.ADMINjpanel;
+package projetintegre.views.ADMINjpanel;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
