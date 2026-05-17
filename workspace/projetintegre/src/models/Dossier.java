@@ -101,7 +101,14 @@ public abstract class Dossier implements IArchivable, IStatistique {
 		// TODO Auto-generated method stub
 		return this.dateCreation;
 	}
+	public void setArchive(boolean archive) {
+	    this.archive = archive;
+	}
 
+	public void setDateArchivage(Date dateArchivage) {
+	    this.dateArchivage = dateArchivage;
+	}
 	public abstract String getType();
 
 }
+
