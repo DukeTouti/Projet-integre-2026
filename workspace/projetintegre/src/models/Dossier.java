@@ -75,7 +75,7 @@ public abstract class Dossier implements IArchivable, IStatistique {
 		// TODO Auto-generated method stub
 		this.archive = true;
 		this.dateArchivage = new Date();
-		this.statut = StatutDossier.CLOTUREE;
+		majStatut(StatutDossier.CLOTUREE);
 	}
 
 	@Override
