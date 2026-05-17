@@ -175,8 +175,8 @@ public class LoginView extends JFrame {
 
             dispose();
             switch (u.getRole()) {
-                case PSH            -> new projetintegre.views.PshMainView();
-                case ADMINISTRATEUR -> new projetintegre.views.AdminMainView();
+                case PSH            -> new PshMainView();
+                case ADMINISTRATEUR -> new AdminMainView();
             }
         });
         gbc.gridy = 6; gbc.insets = new Insets(30, 25, 10, 25);

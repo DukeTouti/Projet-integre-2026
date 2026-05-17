@@ -1,6 +1,6 @@
-package projetintegre.views;
+package views;
 
-import projetintegre.views.ADMINjpanel.*;
+import views.ADMINjpanel.*;
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import javax.swing.table.JTableHeader;

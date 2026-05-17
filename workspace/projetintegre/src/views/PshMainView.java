@@ -1,6 +1,6 @@
-package projetintegre.views;
+package views;
 
-import projetintegre.views.PSHjpanel.*;
+import views.PSHjpanel.*;
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import java.awt.*;
@@ -45,11 +45,11 @@ public class PshMainView extends JFrame {
         cardPanel = new JPanel(cardLayout);
         cardPanel.setOpaque(false);
 
-        cardPanel.add(new StudentDashboardPanel(), "DASHBOARD");
-        cardPanel.add(new NewDossierPanel(), "NEW_DOSSIER");
-        cardPanel.add(new MyDossiersPanel(), "MY_DOSSIERS");
-        cardPanel.add(new ComplaintsPanel(), "COMPLAINTS");
-        cardPanel.add(new StudentProfilePanel(), "PROFILE");
+        cardPanel.add(new views.PSHjpanel.StudentDashboardPanel(), "DASHBOARD");
+        cardPanel.add(new views.PSHjpanel.NewDossierPanel(), "NEW_DOSSIER");
+        cardPanel.add(new views.PSHjpanel.MyDossiersPanel(), "MY_DOSSIERS");
+        cardPanel.add(new projetintegre.views.PSHjpanel.ComplaintsPanel(), "COMPLAINTS");
+        cardPanel.add(new projetintegre.views.PSHjpanel.StudentProfilePanel(), "PROFILE");
 
         contentWrapper = new JPanel(new BorderLayout());
         contentWrapper.setOpaque(false);
