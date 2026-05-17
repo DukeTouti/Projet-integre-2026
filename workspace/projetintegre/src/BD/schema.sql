@@ -3,8 +3,6 @@ CREATE DATABASE IF NOT EXISTS projetintegre
     COLLATE utf8mb4_unicode_ci;
 
 USE projetintegre;
-SET NAMES utf8mb4;
-SET lower_case_table_names = 0;
 
 CREATE TABLE utilisateur (
     idUtilisateur   INT AUTO_INCREMENT PRIMARY KEY,
@@ -53,6 +51,9 @@ CREATE TABLE dossier (
         ON DELETE CASCADE
 );
 
+CREATE INDEX idx_dossier_statut       ON dossier(statut);
+CREATE INDEX idx_dossier_dateCreation ON dossier(dateCreation);
+
 CREATE TABLE demande (
     idDossier       INT             PRIMARY KEY,
     typeDemande     VARCHAR(30)     NOT NULL,
@@ -75,7 +76,7 @@ CREATE TABLE reclamation (
 
     CONSTRAINT fk_reclamation_demande
         FOREIGN KEY (idDemande) REFERENCES demande(idDossier)
-        ON DELETE CASCADE
+        ON DELETE RESTRICT
 );
 
 CREATE TABLE pieceJustificative (
