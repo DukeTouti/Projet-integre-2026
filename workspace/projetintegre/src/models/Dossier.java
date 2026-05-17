@@ -81,7 +81,7 @@ public abstract class Dossier implements IArchivable, IStatistique {
 	@Override
 	public boolean isArchive() {
 		// TODO Auto-generated method stub
-		return this.archive;
+		return this.archive;	
 	}
 
 	@Override
