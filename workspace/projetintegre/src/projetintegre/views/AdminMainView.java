@@ -69,7 +69,7 @@ public class AdminMainView extends JFrame {
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         rightPanel.setOpaque(false);
 
-        btnAccess = new JButton("👁️ Mode Accessibilité (AAA) : ON") {
+        btnAccess = new JButton("Mode Accessibilité (AAA) : ON") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -80,6 +80,7 @@ public class AdminMainView extends JFrame {
                 g2.dispose();
             }
         };
+
         btnAccess.setFont(new Font("SansSerif", Font.BOLD, 11));
         btnAccess.setBackground(Color.BLACK);
         btnAccess.setForeground(TEXT_ACCESSIBILITY);
