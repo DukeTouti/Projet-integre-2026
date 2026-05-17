@@ -7,6 +7,8 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import controllers.VoskSpeechController;
 import controllers.TTSController;
+import BD.BD;
+import java.sql.*;
 
 public class LoginView extends JFrame {
 
@@ -155,6 +157,47 @@ public class LoginView extends JFrame {
         btnConnexion.addMouseListener(new MouseAdapter() {
             @Override public void mouseEntered(MouseEvent e) {
                 if (!isMuted) TTSController.playSound("Boutton_se_connecter.mp3");
+            }
+        });
+
+        btnConnexion.addActionListener(e -> {
+            String identifiant = txtIdentifiant.getText().trim();
+            String motDePasse = new String(txtPassword.getPassword());
+
+            if (identifiant.isEmpty() || motDePasse.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Veuillez remplir tous les champs.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                Connection conn = BD.getConnection();
+                if (conn == null) {
+                    JOptionPane.showMessageDialog(this, "Impossible de se connecter à la base de données.", "Erreur BD", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                PreparedStatement ps = conn.prepareStatement(
+                    "SELECT role FROM utilisateur WHERE email = ? AND motDePasse = ? AND actif = TRUE"
+                );
+                ps.setString(1, identifiant);
+                ps.setString(2, motDePasse);
+                ResultSet rs = ps.executeQuery();
+
+                if (rs.next()) {
+                    String role = rs.getString("role");
+                    VoskSpeechController.stopListening();
+                    dispose();
+                    if ("ADMINISTRATEUR".equals(role)) {
+                        new AdminMainView();
+                    } else {
+                        new PshMainView();
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Identifiant ou mot de passe incorrect.", "Échec de connexion", JOptionPane.ERROR_MESSAGE);
+                }
+                rs.close();
+                ps.close();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erreur : " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
             }
         });
 

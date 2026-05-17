@@ -28,12 +28,10 @@ public class VoskSpeechController {
             String base = System.getProperty("user.dir");
             String folderName = "vosk-model-small-en-us-0.15";
 
-            // Vu ton screen, le modèle est dans le dossier 'lib' à la racine du projet
-            File modelDir = new File(base, "lib" + File.separator + folderName);
+            File modelDir = new File(base, "workspace" + File.separator + "lib" + File.separator + folderName);
 
             if (!modelDir.exists()) {
-                // Sécurité : on tente aussi dans src/projetintegre/ressources au cas où
-                modelDir = new File(base, "src/projetintegre/ressources/" + folderName);
+                modelDir = new File(base, "lib" + File.separator + folderName);
             }
 
             if (!modelDir.exists()) {

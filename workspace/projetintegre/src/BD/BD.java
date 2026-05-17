@@ -1,4 +1,4 @@
-package projetintegre.database;
+package BD;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

@@ -12,10 +12,9 @@ CREATE TABLE utilisateur (
     prenom          VARCHAR(50)     NOT NULL,
     email           VARCHAR(100)    NOT NULL UNIQUE,
     motDePasse      VARCHAR(255)    NOT NULL,
-    role            ENUM('PSH', 'ADMINISTRATEUR') NOT NULL,
+    role            VARCHAR(20)     NOT NULL,
     actif           BOOLEAN         NOT NULL DEFAULT TRUE
 );
-
 
 CREATE TABLE psh (
     idUtilisateur       INT             PRIMARY KEY,
@@ -27,7 +26,6 @@ CREATE TABLE psh (
         FOREIGN KEY (idUtilisateur) REFERENCES utilisateur(idUtilisateur)
         ON DELETE CASCADE
 );
-
 
 CREATE TABLE administrateur (
     idUtilisateur   INT             PRIMARY KEY,
@@ -44,9 +42,8 @@ CREATE TABLE dossier (
     description     TEXT            NOT NULL,
     dateCreation    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     dateMaj         DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    statut          ENUM('EN_ATTENTE', 'EN_COURS', 'ACCEPTEE', 'REFUSEE', 'CLOTUREE')
-                    NOT NULL DEFAULT 'EN_ATTENTE',
-    typeDossier     ENUM('DEMANDE', 'RECLAMATION') NOT NULL,
+    statut          VARCHAR(20)     NOT NULL DEFAULT 'EN_ATTENTE',
+    typeDossier     VARCHAR(20)     NOT NULL,
     archive         BOOLEAN         NOT NULL DEFAULT FALSE,
     dateArchivage   DATETIME        NULL DEFAULT NULL,
     idAuteur        INT             NOT NULL,
@@ -56,11 +53,9 @@ CREATE TABLE dossier (
         ON DELETE CASCADE
 );
 
-
 CREATE TABLE demande (
     idDossier       INT             PRIMARY KEY,
-    typeDemande     ENUM('AMENAGEMENT_EXAMEN', 'ACCESSIBILITE', 'ACCOMPAGNEMENT', 'AUTRE')
-                    NOT NULL,
+    typeDemande     VARCHAR(30)     NOT NULL,
     commentaire     TEXT            NOT NULL DEFAULT '',
 
     CONSTRAINT fk_demande_dossier
@@ -82,7 +77,6 @@ CREATE TABLE reclamation (
         FOREIGN KEY (idDemande) REFERENCES demande(idDossier)
         ON DELETE CASCADE
 );
-
 
 CREATE TABLE pieceJustificative (
     idPiece         INT AUTO_INCREMENT PRIMARY KEY,

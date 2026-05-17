@@ -34,17 +34,14 @@ public class TTSController {
                 String base = System.getProperty("user.dir");
                 String os = System.getProperty("os.name").toLowerCase();
 
-                // On définit le dossier racine des audios de login
-                String resPath = base + File.separator + "src" + File.separator + "projetintegre" +
-                        File.separator + "ressources" + File.separator + "audio" + File.separator + "login";
+                String resBase = base + File.separator + "workspace" + File.separator + "projetintegre" +
+                        File.separator + "src" + File.separator + "ressources";
 
                 String path;
                 if (os.contains("win")) {
-                    // Si tu es sur Windows, il cherche dans un sous-dossier spécifique ou convertit en .wav
-                    path = resPath + File.separator + "audiologinwindows" + File.separator + fileName.replace(".mp3", ".wav");
+                    path = resBase + File.separator + "audiologinwindows" + File.separator + fileName.replace(".mp3", ".wav");
                 } else {
-                    // SUR LINUX (Ton cas actuel) : On tape directement dans /login/
-                    path = resPath + File.separator + fileName;
+                    path = resBase + File.separator + "audio" + File.separator + "login" + File.separator + fileName;
                 }
 
                 File f = new File(path);
