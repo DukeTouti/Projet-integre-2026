@@ -68,7 +68,7 @@ CREATE TABLE reclamation (
     idDossier       INT             PRIMARY KEY,
     motif           TEXT            NOT NULL,
     reponse         TEXT            NOT NULL DEFAULT '',
-    idDemande       INT             NOT NULL,
+    idDemande       INT             NULL DEFAULT NULL,
 
     CONSTRAINT fk_reclamation_dossier
         FOREIGN KEY (idDossier) REFERENCES dossier(idDossier)
@@ -76,7 +76,7 @@ CREATE TABLE reclamation (
 
     CONSTRAINT fk_reclamation_demande
         FOREIGN KEY (idDemande) REFERENCES demande(idDossier)
-        ON DELETE RESTRICT
+        ON DELETE SET NULL
 );
 
 CREATE TABLE pieceJustificative (
