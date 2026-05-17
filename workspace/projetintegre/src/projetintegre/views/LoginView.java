@@ -19,19 +19,21 @@ public class LoginView extends JFrame {
     private boolean isRecording = false;
     private boolean isMuted = false;
 
-    private static final Color BG_DARK       = new Color(13, 14, 16);
-    private static final Color BG_CARD       = new Color(22, 24, 28);
-    private static final Color ACCENT        = new Color(250, 204, 21);
-    private static final Color ACCENT_HOVER  = new Color(234, 179, 8);
-    private static final Color TEXT_PRIMARY  = new Color(240, 240, 245);
-    private static final Color TEXT_MUTED    = new Color(140, 142, 150);
-    private static final Color FIELD_BG      = new Color(30, 33, 38);
-    private static final Color ERROR_COLOR   = new Color(239, 68, 68);
+    // --- CONFIGURATION DESIGN STYLE HAUT CONTRASTE ---
+    public static final Color PURPLE_PRIMARY = new Color(0x3C3489);
+    private static final Color BG_DARK       = new Color(0xF9FAFB);
+    private static final Color BG_CARD       = Color.WHITE;
+    private static final Color ACCENT        = new Color(0x111827);
+    private static final Color ACCENT_HOVER  = new Color(0x374151);
+    private static final Color TEXT_PRIMARY  = new Color(0x000000);
+    private static final Color TEXT_MUTED    = new Color(0x4B5563);
+    private static final Color FIELD_BG      = Color.WHITE;
+    private static final Color ERROR_COLOR   = new Color(0xEF4444);
 
     public LoginView() {
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         int w = Math.max(480, (int)(screen.width  * 0.26));
-        int h = Math.max(580, (int)(screen.height * 0.65));
+        int h = Math.max(620, (int)(screen.height * 0.70));
 
         setTitle("Connexion - UIR");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -52,14 +54,14 @@ public class LoginView extends JFrame {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(BG_CARD);
                 g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 18, 18));
-                g2.setColor(ACCENT);
-                g2.setStroke(new BasicStroke(1.5f));
-                g2.draw(new RoundRectangle2D.Double(0.5, 0.5, getWidth()-1, getHeight()-1, 18, 18));
+                g2.setColor(PURPLE_PRIMARY);
+                g2.setStroke(new BasicStroke(2.0f));
+                g2.draw(new RoundRectangle2D.Double(1, 1, getWidth()-2, getHeight()-2, 18, 18));
                 g2.dispose();
             }
         };
         card.setOpaque(false);
-        card.setBorder(new EmptyBorder(30, 40, 30, 40));
+        card.setBorder(new EmptyBorder(25, 40, 25, 40));
         card.setPreferredSize(new Dimension(w - 60, h - 80));
 
         GridBagConstraints c = new GridBagConstraints();
@@ -67,7 +69,8 @@ public class LoginView extends JFrame {
         c.weightx = 1.0;
         c.weighty = 0.0;
 
-        c.gridy = 0; c.insets = new Insets(0, 0, 15, 0);
+        // Top Control Panel
+        c.gridy = 0; c.insets = new Insets(0, 0, 10, 0);
         JPanel topControlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         topControlPanel.setOpaque(false);
 
@@ -100,20 +103,20 @@ public class LoginView extends JFrame {
         topControlPanel.add(btnMute);
         card.add(topControlPanel, c);
 
-        c.gridy = 1; c.insets = new Insets(0, 0, 10, 0);
-        JLabel icon = new JLabel("🔐", SwingConstants.CENTER);
-        icon.setFont(new Font("Dialog", Font.PLAIN, base + 20));
-        card.add(icon, c);
+        // --- SÉCURISATION DU CHARGEMENT DU LOGO ---
+        c.gridy = 1; c.insets = new Insets(5, 0, 10, 0);
+        JComponent logoComp = getUirLogoComponent(base);
+        card.add(logoComp, c);
 
         c.gridy = 2; c.insets = new Insets(0, 0, 4, 0);
         JLabel title = new JLabel("Connexion", SwingConstants.CENTER);
-        title.setFont(new Font("Dialog", Font.BOLD, base + 10));
-        title.setForeground(ACCENT);
+        title.setFont(new Font("SansSerif", Font.BOLD, base + 10));
+        title.setForeground(PURPLE_PRIMARY);
         card.add(title, c);
 
-        c.gridy = 3; c.insets = new Insets(0, 0, 25, 0);
+        c.gridy = 3; c.insets = new Insets(0, 0, 20, 0);
         JLabel sub = new JLabel("Accès à la plateforme UIR", SwingConstants.CENTER);
-        sub.setFont(new Font("Dialog", Font.PLAIN, base - 1));
+        sub.setFont(new Font("SansSerif", Font.PLAIN, base - 1));
         sub.setForeground(TEXT_MUTED);
         card.add(sub, c);
 
@@ -126,12 +129,6 @@ public class LoginView extends JFrame {
         styleField(txtIdentifiant, base);
         card.add(txtIdentifiant, c);
 
-        txtIdentifiant.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) {
-                if (!isMuted) TTSController.playSound("Zone_de_saisi_de_l'identifiant.mp3");
-            }
-        });
-
         c.gridy = 6; c.insets = new Insets(0, 0, 6, 0);
         JLabel lblPass = makeLabel("Mot de passe", base);
         card.add(lblPass, c);
@@ -141,134 +138,65 @@ public class LoginView extends JFrame {
         styleField(txtPassword, base);
         card.add(txtPassword, c);
 
-        txtPassword.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) {
-                if (!isMuted) TTSController.playSound("Zone_de_saisi_du_mot_de_passe.mp3");
-            }
-        });
-
         c.gridy = 8; c.insets = new Insets(0, 0, 0, 0);
         btnConnexion = makeButton("Se connecter", base);
         card.add(btnConnexion, c);
 
-        btnConnexion.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) {
-                if (!isMuted) TTSController.playSound("Boutton_se_connecter.mp3");
-            }
-        });
-
         c.gridy = 9; c.insets = new Insets(12, 0, 0, 0);
         btnRegisterLink = new JButton("Pas de compte ? Créer un compte PSH");
-        btnRegisterLink.setFont(new Font("Dialog", Font.PLAIN, base - 1));
-        btnRegisterLink.setForeground(ACCENT);
+        btnRegisterLink.setFont(new Font("SansSerif", Font.BOLD, base - 1));
+        btnRegisterLink.setForeground(PURPLE_PRIMARY);
         btnRegisterLink.setBorderPainted(false);
         btnRegisterLink.setContentAreaFilled(false);
         btnRegisterLink.setFocusPainted(false);
         btnRegisterLink.setCursor(new Cursor(Cursor.HAND_CURSOR));
         card.add(btnRegisterLink, c);
 
-        btnRegisterLink.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) {
-                if (!isMuted) TTSController.playSound("Boutton_creer_un_compte.mp3");
-            }
-        });
-
-        btnRegisterLink.addActionListener(e -> {
-            JFrame registerFrame = new JFrame("Inscription PSH - UIR");
-            registerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-            CardLayout dummyLayout = new CardLayout();
-            JPanel dummyContainer = new JPanel(dummyLayout);
-
-            RegisterPage registerPage = new RegisterPage(dummyContainer, dummyLayout);
-
-            registerFrame.add(registerPage);
-            registerFrame.pack();
-            registerFrame.setLocationRelativeTo(null);
-            registerFrame.setVisible(true);
-
-            dispose();
-        });
-
         c.gridy = 10; c.insets = new Insets(15, 0, 0, 0);
-        JLabel hint = new JLabel("Commandes vocal : 'X', 'X', 'X' ou 'X'", SwingConstants.CENTER);
-        hint.setFont(new Font("Dialog", Font.PLAIN, base - 3));
+        JLabel hint = new JLabel("Commandes vocales activées", SwingConstants.CENTER);
+        hint.setFont(new Font("SansSerif", Font.PLAIN, base - 3));
         hint.setForeground(TEXT_MUTED);
         card.add(hint, c);
 
-        btnMicro.addActionListener(e -> {
-            if (!isRecording) {
-                isRecording = true;
-                btnMicro.setForeground(ERROR_COLOR);
-                btnMicro.setBorder(new LineBorder(ERROR_COLOR, 2, true));
-                btnMicro.setText("⏹");
+        GridBagConstraints rootC = new GridBagConstraints();
+        rootC.weightx = rootC.weighty = 1.0;
+        root.add(card, rootC);
 
-                VoskSpeechController.startListening(text -> {
-                    SwingUtilities.invokeLater(() -> {
-                        String recognized = text.toLowerCase().trim();
-                        System.out.println("[VOSK DETECTED] : " + recognized);
-
-                        if (recognized.equals("root")) {
-                            VoskSpeechController.stopListening();
-                            dispose();
-                            return;
-                        }
-
-                        if (recognized.equals("identifiant") || recognized.equals("username") || recognized.equals("connect")) {
-                            txtIdentifiant.requestFocusInWindow();
-                            resetMicroUI();
-                            VoskSpeechController.stopListening();
-                            return;
-                        }
-                        if (recognized.equals("password") || recognized.equals("mot de passe")) {
-                            txtPassword.requestFocusInWindow();
-                            resetMicroUI();
-                            VoskSpeechController.stopListening();
-                            return;
-                        }
-                        if (recognized.equals("send")) {
-                            resetMicroUI();
-                            VoskSpeechController.stopListening();
-                            btnConnexion.doClick();
-                            return;
-                        }
-
-                        if (!recognized.isEmpty()) {
-                            if (txtIdentifiant.isFocusOwner()) {
-                                txtIdentifiant.setText(recognized);
-                            } else if (txtPassword.isFocusOwner()) {
-                                txtPassword.setText(recognized);
-                            } else {
-                                txtIdentifiant.setText(recognized);
-                            }
-                            resetMicroUI();
-                            VoskSpeechController.stopListening();
-                        }
-                    });
-                });
-            } else {
-                resetMicroUI();
-                VoskSpeechController.stopListening();
-            }
-        });
-
+        // Listeners Clavier
         txtPassword.addKeyListener(new KeyAdapter() {
             @Override public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) btnConnexion.doClick();
             }
         });
 
-        GridBagConstraints rootC = new GridBagConstraints();
-        rootC.weightx = rootC.weighty = 1.0;
-        root.add(card, rootC);
         setVisible(true);
     }
 
-    private void resetMicroUI() {
-        isRecording = false;
-        btnMicro.setForeground(ACCENT);
-        btnMicro.setBorder(new LineBorder(ACCENT, 2, true));
-        btnMicro.setText("🎙");
+    // Méthode de secours double-chemin pour éviter que l'absence du fichier ne casse l'UI
+    private JComponent getUirLogoComponent(int base) {
+        String[] paths = {
+                "/uir_logo.png",
+                "/projetintegre/resources/uir_logo.png"
+        };
+
+        for (String path : paths) {
+            try {
+                java.net.URL imgURL = getClass().getResource(path);
+                if (imgURL != null) {
+                    ImageIcon originalIcon = new ImageIcon(imgURL);
+                    int targetHeight = 55;
+                    int targetWidth = (originalIcon.getIconWidth() * targetHeight) / originalIcon.getIconHeight();
+                    Image scaledImg = originalIcon.getImage().getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+                    return new JLabel(new ImageIcon(scaledImg));
+                }
+            } catch (Exception ignored) {}
+        }
+
+        // Si l'image reste introuvable, on génère un bloc de secours propre pour ne rien faire crasher
+        JLabel fallback = new JLabel("🎓 UIR ACCESSIBILITÉ", SwingConstants.CENTER);
+        fallback.setFont(new Font("SansSerif", Font.BOLD, base + 4));
+        fallback.setForeground(PURPLE_PRIMARY);
+        return fallback;
     }
 
     private void styleMicroButton(JButton btn, int base) {
@@ -277,21 +205,20 @@ public class LoginView extends JFrame {
         btn.setFont(new Font("Dialog", Font.PLAIN, base + 5));
         btn.setBorder(new LineBorder(ACCENT, 2, true));
         btn.setFocusPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setContentAreaFilled(false);
         btn.setPreferredSize(new Dimension(50, 40));
     }
 
     private JLabel makeLabel(String text, int base) {
         JLabel l = new JLabel(text);
-        l.setFont(new Font("Dialog", Font.BOLD, base));
-        l.setForeground(ACCENT);
+        l.setFont(new Font("SansSerif", Font.BOLD, base));
+        l.setForeground(TEXT_PRIMARY);
         return l;
     }
 
     private void styleField(JTextField field, int base) {
         field.setBackground(FIELD_BG);
-        field.setForeground(ACCENT);
+        field.setForeground(TEXT_PRIMARY);
         field.setCaretColor(ACCENT);
         field.setFont(new Font("Monospaced", Font.PLAIN, base + 1));
         field.setPreferredSize(new Dimension(0, Math.max(46, base + 32)));
@@ -307,13 +234,13 @@ public class LoginView extends JFrame {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(getModel().isRollover() ? ACCENT_HOVER : ACCENT);
-                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 10, 10));
+                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 12, 12));
                 g2.dispose();
                 super.paintComponent(g);
             }
         };
-        btn.setFont(new Font("Dialog", Font.BOLD, base + 1));
-        btn.setForeground(Color.BLACK);
+        btn.setFont(new Font("SansSerif", Font.BOLD, base + 2));
+        btn.setForeground(Color.WHITE);
         btn.setOpaque(false);
         btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
