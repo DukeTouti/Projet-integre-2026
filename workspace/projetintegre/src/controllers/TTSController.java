@@ -18,12 +18,12 @@ public class TTSController {
 		}
 	}
 
-	// Appelé par LoginView — sous-dossier par défaut : audioLoginView
+	//sous-dossier par defaut : audioLoginView
 	public static void playSound(String fileName) {
 		playSound("audioLoginView", fileName);
 	}
 
-	// Appelé par toute vue avec son propre sous-dossier
+
 	public static void playSound(String subfolder, String fileName) {
 		if (!ttsEnabled)
 			return;

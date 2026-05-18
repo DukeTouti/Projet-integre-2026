@@ -1,10 +1,12 @@
 package views;
 
 import views.PSHjpanel.*;
+import controllers.TTSController;
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
+import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
 public class PshMainView extends JFrame {
@@ -16,23 +18,22 @@ public class PshMainView extends JFrame {
     private JLabel userLabel;
     private JPanel contentWrapper;
 
-    // --- CORRECTION DU THÈME STANDARD (HAUT CONTRASTE CLAIR) ---
     public static final Color PURPLE_PRIMARY = new Color(0x3C3489);
-    private final Color BG_STANDARD = new Color(0xF9FAFB);      // Gris ultra-clair pour le relief
-    private final Color TEXT_STANDARD = new Color(0x000000);    // Noir absolu pour le texte
-    private final Color BORDER_STANDARD = new Color(0x111827);  // Contour sombre
-    private final Color BTN_BG_STANDARD = new Color(0xE5E7EB);  // Fond bouton standard sécurisé
+    private final Color BG_STANDARD = new Color(0xF9FAFB);
+    private final Color TEXT_STANDARD = new Color(0x000000);
+    private final Color BORDER_STANDARD = new Color(0x111827);
+    private final Color BTN_BG_STANDARD = new Color(0xE5E7EB);
+    private final Color BG_ACCESSIBILITY = new Color(0x111827);
+    private final Color TEXT_ACCESSIBILITY = new Color(0xFDE047);
 
-    // --- PALETTE THÈME ACCESSIBILITÉ (HAUT CONTRASTE SOMBRE) ---
-    private final Color BG_ACCESSIBILITY = new Color(0x111827);   // Noir profond
-    private final Color TEXT_ACCESSIBILITY = new Color(0xFDE047); // Jaune vif
+    private static final String AUDIO_DIR = "audioPSHMainView";
 
     private boolean isAccessibilityMode = false;
     private JButton btnAccess;
 
     public PshMainView() {
         setTitle("UIR · PSH Platform (Espace Étudiant - Haute Visibilité)");
-        setSize(1050, 750); // 
+        setSize(1050, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -47,7 +48,6 @@ public class PshMainView extends JFrame {
         cardPanel = new JPanel(cardLayout);
         cardPanel.setOpaque(false);
 
-        // Chargement sécurisé des sous-panneaux
         try {
             cardPanel.add(new views.PSHjpanel.StudentDashboardPanel(), "DASHBOARD");
             cardPanel.add(new views.PSHjpanel.NewDossierPanel(), "NEW_DOSSIER");
@@ -63,9 +63,7 @@ public class PshMainView extends JFrame {
         contentWrapper.add(cardPanel, BorderLayout.CENTER);
         add(contentWrapper, BorderLayout.CENTER);
 
-        // Application initiale du thème
         toggleTheme();
-        
         setVisible(true);
     }
 
@@ -103,6 +101,9 @@ public class PshMainView extends JFrame {
         btnAccess.setContentAreaFilled(false);
         btnAccess.setFocusPainted(false);
         btnAccess.setBorderPainted(false);
+        btnAccess.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) { TTSController.playSound(AUDIO_DIR, "btn_contraste.mp3"); }
+        });
         btnAccess.addActionListener(e -> toggleTheme());
         rightPanel.add(btnAccess);
 
@@ -112,18 +113,19 @@ public class PshMainView extends JFrame {
 
     private JPanel createSidebar() {
         sidebar = new JPanel();
-        
-        // Liste enrichie avec l'action de déconnexion
-        String[] labels = {"Tableau de bord", "Nouvelle Demande", "Mes Dossiers", "Réclamations", "Mon Profil", "Se déconnecter"};
-        String[] actions = {"DASHBOARD", "NEW_DOSSIER", "MY_DOSSIERS", "COMPLAINTS", "PROFILE", "LOGOUT"};
 
-        // Utilisation de GridLayout pour forcer le partage équitable de l'espace vertical disponible
+        String[] labels  = {"Tableau de bord", "Nouvelle Demande", "Mes Dossiers", "Réclamations", "Mon Profil", "Se déconnecter"};
+        String[] actions = {"DASHBOARD", "NEW_DOSSIER", "MY_DOSSIERS", "COMPLAINTS", "PROFILE", "LOGOUT"};
+        String[] audios  = {"zone_dashboard.mp3", "zone_nouvelledemande.mp3", "zone_dossiers.mp3", "zone_reclamations.mp3", "zone_profil.mp3", "btn_sedeconnecter.mp3"};
+
         sidebar.setLayout(new GridLayout(labels.length, 1, 0, 12));
         sidebar.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 15));
-        sidebar.setPreferredSize(new Dimension(230, 0)); // Fixe la largeur de la sidebar
+        sidebar.setPreferredSize(new Dimension(230, 0));
 
         for (int i = 0; i < labels.length; i++) {
             final String target = actions[i];
+            final String audioFile = audios[i];
+
             JButton btn = new JButton(labels[i]) {
                 @Override
                 protected void paintComponent(Graphics g) {
@@ -145,20 +147,22 @@ public class PshMainView extends JFrame {
             btn.setBorderPainted(false);
             btn.setHorizontalAlignment(SwingConstants.LEFT);
             btn.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 0));
-            
-            // Gestion spécifique pour le bouton se déconnecter
+            btn.addMouseListener(new MouseAdapter() {
+                @Override public void mouseEntered(MouseEvent e) { TTSController.playSound(AUDIO_DIR, audioFile); }
+            });
+
             if ("LOGOUT".equals(target)) {
                 btn.addActionListener(e -> {
                     int option = JOptionPane.showConfirmDialog(
-                            this, 
-                            "Voulez-vous vraiment vous déconnecter de la plateforme PSH ?", 
-                            "Confirmation de déconnexion", 
-                            JOptionPane.YES_NO_OPTION, 
+                            this,
+                            "Voulez-vous vraiment vous déconnecter de la plateforme PSH ?",
+                            "Confirmation de déconnexion",
+                            JOptionPane.YES_NO_OPTION,
                             JOptionPane.QUESTION_MESSAGE
                     );
                     if (option == JOptionPane.YES_OPTION) {
-                        this.dispose(); // Ferme la vue principale
-                        new LoginView(); // Redirection vers la page de login
+                        this.dispose();
+                        new LoginView();
                     }
                 });
             } else {
@@ -173,8 +177,8 @@ public class PshMainView extends JFrame {
     private void toggleTheme() {
         isAccessibilityMode = !isAccessibilityMode;
 
-        Color currentBg = isAccessibilityMode ? BG_ACCESSIBILITY : BG_STANDARD;
-        Color currentText = isAccessibilityMode ? TEXT_ACCESSIBILITY : TEXT_STANDARD;
+        Color currentBg     = isAccessibilityMode ? BG_ACCESSIBILITY : BG_STANDARD;
+        Color currentText   = isAccessibilityMode ? TEXT_ACCESSIBILITY : TEXT_STANDARD;
         Color currentBorder = isAccessibilityMode ? TEXT_ACCESSIBILITY : BORDER_STANDARD;
         Color separatorColor = isAccessibilityMode ? TEXT_ACCESSIBILITY : PURPLE_PRIMARY;
 
@@ -195,7 +199,7 @@ public class PshMainView extends JFrame {
         }
 
         applyThemeRecursively(this, currentBg, currentText, currentBorder);
-        
+
         this.revalidate();
         this.repaint();
     }
@@ -224,7 +228,6 @@ public class PshMainView extends JFrame {
             table.setGridColor(border);
             table.setSelectionBackground(isAccessibilityMode ? new Color(0x374151) : PURPLE_PRIMARY);
             table.setSelectionForeground(isAccessibilityMode ? text : Color.WHITE);
-
             JTableHeader header = table.getTableHeader();
             if (header != null) {
                 header.setBackground(isAccessibilityMode ? new Color(0x1F2937) : border);
@@ -241,7 +244,6 @@ public class PshMainView extends JFrame {
             comp.setBackground(bg);
             comp.setForeground(text);
             ((JComboBox<?>) comp).setBorder(new RoundedBorder(10, isAccessibilityMode ? text : border));
-
             Object renderer = ((JComboBox<?>) comp).getRenderer();
             if (renderer instanceof JComponent) {
                 ((JComponent) renderer).setBackground(bg);
@@ -252,7 +254,6 @@ public class PshMainView extends JFrame {
         if (comp instanceof JButton) {
             JButton b = (JButton) comp;
             b.setForeground(text);
-            
             if (b == btnAccess || b.getParent() == sidebar) {
                 b.setBorder(BorderFactory.createCompoundBorder(
                         new RoundedBorder(12, border),
@@ -263,7 +264,6 @@ public class PshMainView extends JFrame {
                 b.setOpaque(false);
                 b.setBorderPainted(false);
                 b.setFocusPainted(false);
-
                 b.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
                     @Override
                     public void paint(Graphics g, JComponent jc) {
@@ -321,9 +321,7 @@ public class PshMainView extends JFrame {
         SwingUtilities.invokeLater(() -> {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception e) {
-                // Reste silencieux si y'as échec
-            }
+            } catch (Exception ignored) {}
             new PshMainView();
         });
     }

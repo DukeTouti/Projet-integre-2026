@@ -21,7 +21,7 @@ public class LoginView extends JFrame {
     private JButton btnNoAccount;
     private JButton btnAccess;
 
-    // boutons micro et mute — ajoutés pour Vosk et TTS
+    // boutons micro et mut
     private JButton btnMicro;
     private JButton btnMute;
     private boolean isRecording = false;
@@ -63,7 +63,7 @@ public class LoginView extends JFrame {
         gbc.insets = new Insets(12, 25, 12, 25);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // boutons micro + mute en haut à droite
+        // boutons micro + mute en haut droite
         JPanel topBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         topBar.setOpaque(false);
 
@@ -299,7 +299,7 @@ public class LoginView extends JFrame {
 
         mainCardPanel.setBackground(currentBg);
 
-        btnAccess.setText(isAccessibilityMode ? "👁️ Mode Accessibilité (AAA) : ON" : "👁️ Mode Accessibilité (AAA) : OFF");
+        btnAccess.setText(isAccessibilityMode ? "Mode Accessibilité (AAA) : ON" : "Mode Accessibilité (AAA) : OFF");
         btnAccess.setBackground(isAccessibilityMode ? Color.BLACK : new Color(0xF3F4F6));
         btnAccess.setForeground(isAccessibilityMode ? TEXT_ACCESSIBILITY : PURPLE_PRIMARY);
         btnAccess.setBorder(new RoundedBorder(12, isAccessibilityMode ? currentBorder : new Color(0xD1D5DB)));
