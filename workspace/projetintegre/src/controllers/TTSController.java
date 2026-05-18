@@ -4,26 +4,27 @@ import java.io.File;
 
 public class TTSController {
 
-	// Partage par toutes les vues (Login, Admin, PSH, avec le extends) dont on
-	// utilise private
 	private static boolean ttsEnabled = true;
-	private static Process currentAudio = null; // Au depart, rine
+	private static Process currentAudio = null;
 
-	// ON check si le user veut la saisit ou pas
 	public static boolean isTtsEnabled() {
 		return ttsEnabled;
 	}
 
 	public static void toggleTTS() {
-		ttsEnabled = !ttsEnabled;// ON switch
-		if (!isTtsEnabled() && currentAudio != null) { // currentAudio != null, donc question : processus audio a deja
-														// ete lance ?
+		ttsEnabled = !ttsEnabled;
+		if (!isTtsEnabled() && currentAudio != null) {
 			currentAudio.destroy();
 		}
 	}
 
-	// WHILE BOUCLE tans que isTtsEnabled renvoie True/1
+	// Appelé par LoginView — sous-dossier par défaut : audioLoginView
 	public static void playSound(String fileName) {
+		playSound("audioLoginView", fileName);
+	}
+
+	// Appelé par toute vue avec son propre sous-dossier
+	public static void playSound(String subfolder, String fileName) {
 		if (!ttsEnabled)
 			return;
 
@@ -34,17 +35,16 @@ public class TTSController {
 				}
 
 				String base = System.getProperty("user.dir");
-				String os = System.getProperty("os.name").toLowerCase();
+				String os   = System.getProperty("os.name").toLowerCase();
 
-				String resBase = base + File.separator + "workspace" + File.separator + "projetintegre" + File.separator
-						+ "src" + File.separator + "ressources";
+				String resBase = base + File.separator + "src" + File.separator + "ressources";
 
 				String path;
 				if (os.contains("win")) {
-					path = resBase + File.separator + "audiologinwindows" + File.separator
+					path = resBase + File.separator + subfolder + File.separator
 							+ fileName.replace(".mp3", ".wav");
 				} else {
-					path = resBase + File.separator + "audio" + File.separator + "login" + File.separator + fileName;
+					path = resBase + File.separator + subfolder + File.separator + fileName;
 				}
 
 				File f = new File(path);

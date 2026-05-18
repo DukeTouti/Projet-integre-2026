@@ -118,7 +118,7 @@ public class LoginView extends JFrame {
         txtUsername.setFont(new Font("SansSerif", Font.PLAIN, 14));
         txtUsername.addMouseListener(new MouseAdapter() {
             @Override public void mouseEntered(MouseEvent e) {
-                if (!isMuted) TTSController.playSound("Zone_de_saisi_de_l'identifiant.mp3");
+                if (!isMuted) TTSController.playSound("zone_identifiant.mp3");
             }
         });
         gbc.gridy = 3;
@@ -134,7 +134,7 @@ public class LoginView extends JFrame {
         txtPassword.setFont(new Font("SansSerif", Font.PLAIN, 14));
         txtPassword.addMouseListener(new MouseAdapter() {
             @Override public void mouseEntered(MouseEvent e) {
-                if (!isMuted) TTSController.playSound("Zone_de_saisi_du_mot_de_passe.mp3");
+                if (!isMuted) TTSController.playSound("zone_mdp.mp3");
             }
         });
         txtPassword.addKeyListener(new KeyAdapter() {
@@ -150,7 +150,7 @@ public class LoginView extends JFrame {
         btnLogin.setFont(new Font("SansSerif", Font.BOLD, 14));
         btnLogin.addMouseListener(new MouseAdapter() {
             @Override public void mouseEntered(MouseEvent e) {
-                if (!isMuted) TTSController.playSound("Boutton_se_connecter.mp3");
+                if (!isMuted) TTSController.playSound("btn_seconnecter.mp3");
             }
         });
         btnLogin.addActionListener(e -> {
@@ -189,6 +189,11 @@ public class LoginView extends JFrame {
         // bouton inscription
         btnNoAccount = createCustomButton("Pas de compte ? Créer un compte", false);
         btnNoAccount.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        btnNoAccount.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) {
+                if (!isMuted) TTSController.playSound("btn_creercompte.mp3");
+            }
+        });
         btnNoAccount.addActionListener(e -> {
             txtUsername.setText("");
             txtPassword.setText("");

@@ -73,18 +73,18 @@ public class PshMainView extends JFrame {
         navbar = new JPanel(new BorderLayout(20, 0));
         navbar.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
 
-        logoLabel = new JLabel("🎓 UIR ACCESSIBILITÉ");
+        logoLabel = new JLabel("UIR ACCESSIBILITÉ");
         logoLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         navbar.add(logoLabel, BorderLayout.WEST);
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
         rightPanel.setOpaque(false);
 
-        userLabel = new JLabel("👤 Étudiant : Ilyas Jidal (3A Cybersécurité)");
+        userLabel = new JLabel("Étudiant : Ilyas Jidal (3A Cybersécurité)");
         userLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
         rightPanel.add(userLabel);
 
-        btnAccess = new JButton("👁️ Mode Contraste Élevé") {
+        btnAccess = new JButton("Mode Contraste Élevé") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -114,7 +114,7 @@ public class PshMainView extends JFrame {
         sidebar = new JPanel();
         
         // Liste enrichie avec l'action de déconnexion
-        String[] labels = {"📊 Tableau de bord", "📁 Nouvelle Demande", "🗂️ Mes Dossiers", "💬 Réclamations", "👤 Mon Profil", "🚪 Se déconnecter"};
+        String[] labels = {"Tableau de bord", "Nouvelle Demande", "Mes Dossiers", "Réclamations", "Mon Profil", "Se déconnecter"};
         String[] actions = {"DASHBOARD", "NEW_DOSSIER", "MY_DOSSIERS", "COMPLAINTS", "PROFILE", "LOGOUT"};
 
         // Utilisation de GridLayout pour forcer le partage équitable de l'espace vertical disponible

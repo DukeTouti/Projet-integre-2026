@@ -8,6 +8,7 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 import controllers.AuthController;
+import controllers.TTSController;
 import models.PSH;
 
 public class RegisterPage extends JPanel {
@@ -37,6 +38,8 @@ public class RegisterPage extends JPanel {
     private static final Color COMP_INPUT_BG      = new Color(30, 33, 38);
     private static final Color CONFIRM_GREEN      = new Color(34, 197, 94);
     private static final Color ERROR_RED          = new Color(239, 68, 68);
+
+    private static final String AUDIO_DIR = "audioRegisterPage";
 
     public RegisterPage(JPanel container, CardLayout cardLayout) {
         this.container  = container;
@@ -135,6 +138,41 @@ public class RegisterPage extends JPanel {
         card.add(switchToLoginButton, c);
 
         // ================================================================
+        // HOVER AUDIO
+        // ================================================================
+
+        nomField.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) { TTSController.playSound(AUDIO_DIR, "zone_nom.mp3"); }
+        });
+        prenomField.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) { TTSController.playSound(AUDIO_DIR, "zone_prenom.mp3"); }
+        });
+        emailField.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) { TTSController.playSound(AUDIO_DIR, "zone_email.mp3"); }
+        });
+        numeroEtudiantField.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) { TTSController.playSound(AUDIO_DIR, "zone_id.mp3"); }
+        });
+        typeHandicapField.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) { TTSController.playSound(AUDIO_DIR, "zone_handicap.mp3"); }
+        });
+        passwordField.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) { TTSController.playSound(AUDIO_DIR, "zone_mdp1.mp3"); }
+        });
+        confirmPasswordField.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) { TTSController.playSound(AUDIO_DIR, "zone_mdp2.mp3"); }
+        });
+        uploadButton.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) { TTSController.playSound(AUDIO_DIR, "btn_justificatif.mp3"); }
+        });
+        registerButton.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) { TTSController.playSound(AUDIO_DIR, "btn_sinscrire.mp3"); }
+        });
+        switchToLoginButton.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) { TTSController.playSound(AUDIO_DIR, "btn_dejacompte.mp3"); }
+        });
+
+        // ================================================================
         // ACTIONS
         // ================================================================
 
@@ -158,7 +196,6 @@ public class RegisterPage extends JPanel {
         GridBagConstraints root = new GridBagConstraints();
         root.weightx = root.weighty = 1.0;
 
-        // Scroll si l'écran est trop petit
         JScrollPane scroll = new JScrollPane(card,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -182,7 +219,6 @@ public class RegisterPage extends JPanel {
         String password         = new String(passwordField.getPassword());
         String confirm          = new String(confirmPasswordField.getPassword());
 
-        // 1. Champs obligatoires
         if (nom.isEmpty() || prenom.isEmpty() || email.isEmpty() ||
                 numeroEtudiant.isEmpty() || typeHandicap.isEmpty() ||
                 password.isEmpty() || confirm.isEmpty()) {
@@ -190,38 +226,31 @@ public class RegisterPage extends JPanel {
             return;
         }
 
-        // 2. Validation email basique
         if (!email.contains("@") || !email.contains(".")) {
             showError("Email invalide", "Veuillez saisir une adresse email valide.");
             return;
         }
 
-        // 3. Confirmation mot de passe
         if (!password.equals(confirm)) {
             showError("Mots de passe différents", "Les deux mots de passe ne correspondent pas.");
             confirmPasswordField.setText("");
             return;
         }
 
-        // 4. Justificatif obligatoire
         if (selectedPDF == null) {
             showError("Document manquant", "Veuillez joindre un justificatif médical (PDF).");
             return;
         }
 
-        // 5. Appel AuthController
         PSH psh = AuthController.inscription(nom, prenom, email, password, numeroEtudiant, typeHandicap);
 
         if (psh == null) {
-            // null = email déjà pris ou erreur BD
             showError("Inscription échouée", "Cet email est déjà utilisé ou une erreur s'est produite.");
             return;
         }
 
-        // Succès
         showSuccess("Votre compte a été créé.\nL'administration doit l'activer avant que vous puissiez vous connecter.");
 
-        // Vider le formulaire et revenir à la connexion
         resetForm();
         cardLayout.show(container, "LOGIN_PANEL");
     }
@@ -230,7 +259,6 @@ public class RegisterPage extends JPanel {
     // HELPERS
     // ================================================================
 
-    // Ajoute une ligne label + champ dans le GridBag, retourne le prochain row.
     private int addField(JPanel card, GridBagConstraints c, int base, int row, String label, JTextField field) {
         c.gridy = row; c.gridx = 0; c.insets = new Insets(0, 4, 4, 8);
         card.add(makeLabel(label, base), c);
