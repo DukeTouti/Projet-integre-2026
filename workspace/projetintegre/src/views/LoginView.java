@@ -10,7 +10,6 @@ import controllers.VoskSpeechController;
 import controllers.TTSController;
 import models.Utilisateur;
 
-
 public class LoginView extends JFrame {
     private JPanel mainCardPanel;
     private CardLayout cardLayout;
@@ -21,7 +20,6 @@ public class LoginView extends JFrame {
     private JButton btnNoAccount;
     private JButton btnAccess;
 
-    // boutons micro et mut
     private JButton btnMicro;
     private JButton btnMute;
     private boolean isRecording = false;
@@ -39,6 +37,7 @@ public class LoginView extends JFrame {
     private boolean isAccessibilityMode = false;
 
     public LoginView() {
+        VoskSpeechController.initModel();
         setTitle("UIR · PSH Platform (Connexion)");
         setSize(480, 620);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -48,6 +47,7 @@ public class LoginView extends JFrame {
         cardLayout = new CardLayout();
         mainCardPanel = new JPanel(cardLayout);
 
+        // Ajout des deux panneaux au CardLayout
         mainCardPanel.add(createLoginPanel(), "LOGIN_PANEL");
         mainCardPanel.add(new RegisterPage(mainCardPanel, cardLayout), "REGISTER_PANEL");
 
@@ -63,7 +63,6 @@ public class LoginView extends JFrame {
         gbc.insets = new Insets(12, 25, 12, 25);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // boutons micro + mute en haut droite
         JPanel topBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         topBar.setOpaque(false);
 
@@ -100,14 +99,12 @@ public class LoginView extends JFrame {
         gbc.insets = new Insets(10, 25, 0, 10);
         panel.add(topBar, gbc);
 
-        // titre
         JLabel lblTitle = new JLabel("🎙️ Connexion", SwingConstants.CENTER);
         lblTitle.setFont(new Font("SansSerif", Font.BOLD, 24));
         lblTitle.setForeground(PURPLE_PRIMARY);
         gbc.gridy = 1; gbc.insets = new Insets(10, 25, 25, 25);
         panel.add(lblTitle, gbc);
 
-        // identifiant
         gbc.insets = new Insets(8, 25, 4, 25);
         JLabel lblUser = new JLabel("Identifiant :");
         lblUser.setFont(new Font("SansSerif", Font.BOLD, 13));
@@ -124,7 +121,6 @@ public class LoginView extends JFrame {
         gbc.gridy = 3;
         panel.add(txtUsername, gbc);
 
-        // mot de passe
         JLabel lblPass = new JLabel("Mot de passe :");
         lblPass.setFont(new Font("SansSerif", Font.BOLD, 13));
         gbc.gridy = 4;
@@ -145,7 +141,6 @@ public class LoginView extends JFrame {
         gbc.gridy = 5;
         panel.add(txtPassword, gbc);
 
-        // bouton connexion
         btnLogin = createCustomButton("Se connecter", true);
         btnLogin.setFont(new Font("SansSerif", Font.BOLD, 14));
         btnLogin.addMouseListener(new MouseAdapter() {
@@ -186,7 +181,6 @@ public class LoginView extends JFrame {
         gbc.gridy = 6; gbc.insets = new Insets(30, 25, 10, 25);
         panel.add(btnLogin, gbc);
 
-        // bouton inscription
         btnNoAccount = createCustomButton("Pas de compte ? Créer un compte", false);
         btnNoAccount.setFont(new Font("SansSerif", Font.PLAIN, 13));
         btnNoAccount.addMouseListener(new MouseAdapter() {
@@ -202,7 +196,6 @@ public class LoginView extends JFrame {
         gbc.gridy = 7; gbc.insets = new Insets(5, 25, 10, 25);
         panel.add(btnNoAccount, gbc);
 
-        // bouton accessibilité
         btnAccess = createCustomButton("Mode Accessibilité : OFF", false);
         btnAccess.setFont(new Font("SansSerif", Font.BOLD, 11));
         btnAccess.addActionListener(e -> {
@@ -212,7 +205,6 @@ public class LoginView extends JFrame {
         gbc.gridy = 8; gbc.insets = new Insets(25, 25, 15, 25);
         panel.add(btnAccess, gbc);
 
-        // logique Vosk
         btnMicro.addActionListener(e -> {
             if (!isRecording) {
                 isRecording = true;
@@ -235,12 +227,20 @@ public class LoginView extends JFrame {
                         VoskSpeechController.stopListening();
                         return;
                     }
-                    if (recognized.equals("password")) {
+                    if (recognized.equals("pass")) {
                         txtPassword.requestFocusInWindow();
                         resetMicroUI();
                         VoskSpeechController.stopListening();
                         return;
                     }
+                    
+                    if (recognized.equals("user") || recognized.equals("username")) {
+                    	txtUsername.requestFocusInWindow();
+                        resetMicroUI();
+                        VoskSpeechController.stopListening();
+                        return;
+                    }
+                    
                     if (recognized.equals("send")) {
                         resetMicroUI();
                         VoskSpeechController.stopListening();
@@ -347,7 +347,7 @@ public class LoginView extends JFrame {
         }
         if (comp instanceof Container) {
             for (Component child : ((Container) comp).getComponents()) {
-                if (!(child instanceof RegisterPage)) {
+                if (!child.getClass().getSimpleName().equals("RegisterPage")) {
                     applyThemeRecursively(child, bg, text, border);
                 }
             }

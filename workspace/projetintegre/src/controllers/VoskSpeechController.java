@@ -6,41 +6,31 @@ import javax.sound.sampled.*;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 
-/**
- * Contrôleur optimisé pour la reconnaissance vocale. Utilise une grammaire Vosk
- * + un filtre de sécurité Java.
- */
 public class VoskSpeechController {
 
 	private static Model model;
 	private static boolean isListening = false;
 
-	// Liste blanche des mots autorisés pour éviter les hallucinations du modèle
-	private static final List<String> ALLOWED_COMMANDS = Arrays.asList("admin", "root", "login", "next", "password",
-			"exit", "connect", "username", "send");
-
 	public static void initModel() {
 		try {
 			String base = System.getProperty("user.dir");
 			String folderName = "vosk-model-small-en-us-0.15";
+			
+			File projectDir = new File(base);
+			File workspaceDir = projectDir.getParentFile(); 
 
-			File modelDir = new File(base, "workspace" + File.separator + "lib" + File.separator + folderName);
+			File modelDir = new File(workspaceDir, "lib" + File.separator + folderName);
 
 			if (!modelDir.exists()) {
-				modelDir = new File(base, "lib" + File.separator + folderName);
-			}
-
-			if (!modelDir.exists()) {
-				System.err.println("[VOSK] ERREUR : Modèle introuvable à : " + modelDir.getAbsolutePath());
+				System.err.println("[VOSK] ERREUR CRITIQUE : Le dossier n'est pas là.");
+				System.err.println("[VOSK] Chemin absolu attendu : " + modelDir.getAbsolutePath());
 				return;
 			}
 
 			System.out.println("[VOSK] Chargement du modèle depuis : " + modelDir.getAbsolutePath());
 			model = new Model(modelDir.getAbsolutePath());
-			System.out.println("[VOSK] Modèle chargé avec succès.");
+			System.out.println("[VOSK] Modèle chargé avec succès !");
 
 		} catch (Exception e) {
 			System.err.println("[VOSK] Échec du chargement : " + e.getMessage());
@@ -53,40 +43,35 @@ public class VoskSpeechController {
 		isListening = true;
 
 		new Thread(() -> {
-			// Format standard 16kHz Mono
 			AudioFormat format = new AudioFormat(16000, 16, 1, true, false);
 			DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
 
 			try (TargetDataLine line = (TargetDataLine) AudioSystem.getLine(info)) {
 				line.open(format);
 				line.start();
+				
+				// 1. Définition de la grammaire restreinte au format JSON array
+				// Tu peux y ajouter "connect" ou "send" si ton interface en a besoin
+				String grammar = "[\"root\", \"user\", \"username\", \"password\", \"mot de passe\", \"send\", \"john\" \"[unk]\"]";
 
-				// On définit la grammaire JSON pour Vosk
-				String grammar = "[\"admin\", \"root\", \"login\", \"next\", \"password\", \"exit\", \"username\", \"send\", \"connect\",\"[unk]\"]";
+				System.out.println("[VOSK] Écoute active (Mode Grammaire Restreinte)...");
 
+				// 2. On passe la grammaire au constructeur du Recognizer
 				try (Recognizer recognizer = new Recognizer(model, 16000, grammar)) {
 					byte[] buffer = new byte[4096];
 					int bytesRead;
-
-					System.out.println("[VOSK] Écoute active (Mode Commande Strict)...");
 
 					while (isListening) {
 						bytesRead = line.read(buffer, 0, buffer.length);
 						if (bytesRead > 0) {
 							if (recognizer.acceptWaveForm(buffer, bytesRead)) {
-								// Récupération du résultat après une pause
 								String resultJson = recognizer.getResult();
 								String text = parseVoskJson(resultJson).trim().toLowerCase();
 
-								// DOUBLE VÉRIFICATION : Vosk Grammar + Java List
-								if (!text.isEmpty() && ALLOWED_COMMANDS.contains(text)) {
-									System.out.println("[VOSK] Commande validée : " + text);
+								// On envoie le texte uniquement s'il est valide et reconnu
+								if (!text.isEmpty() && !text.equals("[unk]")) {
+									System.out.println("[VOSK] Texte validé : " + text);
 									listener.onResult(text);
-								} else {
-									// Optionnel : afficher ce qui a été rejeté pour le débug
-									if (!text.equals("[unk]") && !text.isEmpty()) {
-										System.out.println("[VOSK] Mot hors dictionnaire rejeté : " + text);
-									}
 								}
 							}
 						}
@@ -94,6 +79,8 @@ public class VoskSpeechController {
 				}
 			} catch (Exception e) {
 				System.err.println("[VOSK] Erreur micro : " + e.getMessage());
+			} catch (Throwable t) {
+				System.err.println("[VOSK] Erreur native : " + t.getMessage());
 			} finally {
 				isListening = false;
 			}
