@@ -52,7 +52,7 @@ public class VoskSpeechController {
 				
 				// 1. Définition de la grammaire restreinte au format JSON array
 				// Tu peux y ajouter "connect" ou "send" si ton interface en a besoin
-				String grammar = "[\"root\", \"user\", \"username\", \"password\", \"mot de passe\", \"send\", \"john\" \"[unk]\"]";
+				String grammar = "[\"root\", \"user\", \"username\", \"password\", \"mot de passe\", \"send\", \"john\", \"[unk]\"]";
 
 				System.out.println("[VOSK] Écoute active (Mode Grammaire Restreinte)...");
 

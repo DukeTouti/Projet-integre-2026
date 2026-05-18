@@ -37,7 +37,7 @@ public class LoginView extends JFrame {
     private boolean isAccessibilityMode = false;
 
     public LoginView() {
-        VoskSpeechController.initModel();
+        // Suppression de VoskSpeechController.initModel() car déjà géré par le Main
         setTitle("UIR · PSH Platform (Connexion)");
         setSize(480, 620);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -113,8 +113,10 @@ public class LoginView extends JFrame {
 
         txtUsername = new JTextField(20);
         txtUsername.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        txtUsername.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) {
+        // Remplacement du MouseListener par un FocusListener pour l'accessibilité
+        txtUsername.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
                 if (!isMuted) TTSController.playSound("zone_identifiant.mp3");
             }
         });
@@ -128,8 +130,10 @@ public class LoginView extends JFrame {
 
         txtPassword = new JPasswordField(20);
         txtPassword.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        txtPassword.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) {
+        // Remplacement du MouseListener par un FocusListener pour l'accessibilité
+        txtPassword.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
                 if (!isMuted) TTSController.playSound("zone_mdp.mp3");
             }
         });
@@ -221,26 +225,18 @@ public class LoginView extends JFrame {
                         dispose();
                         return;
                     }
-                    if (recognized.equals("connect") || recognized.equals("username")) {
+                    if (recognized.equals("user") || recognized.equals("username")) {
                         txtUsername.requestFocusInWindow();
                         resetMicroUI();
                         VoskSpeechController.stopListening();
                         return;
                     }
-                    if (recognized.equals("pass")) {
+                    if (recognized.equals("password")) {
                         txtPassword.requestFocusInWindow();
                         resetMicroUI();
                         VoskSpeechController.stopListening();
                         return;
                     }
-                    
-                    if (recognized.equals("user") || recognized.equals("username")) {
-                    	txtUsername.requestFocusInWindow();
-                        resetMicroUI();
-                        VoskSpeechController.stopListening();
-                        return;
-                    }
-                    
                     if (recognized.equals("send")) {
                         resetMicroUI();
                         VoskSpeechController.stopListening();
