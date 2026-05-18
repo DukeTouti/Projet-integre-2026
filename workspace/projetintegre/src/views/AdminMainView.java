@@ -43,6 +43,7 @@ public class AdminMainView extends JFrame {
         cardPanel = new JPanel(cardLayout);
         cardPanel.setBackground(BG_ACCESSIBILITY);
 
+        // Ajout des panels de l'application
         cardPanel.add(new AdminDashboardPanel(), "DASHBOARD");
         cardPanel.add(new AdminDossiersListPanel(), "DOSSIERS_LIST");
         cardPanel.add(new AdminComplaintsPanel(), "COMPLAINTS");
@@ -106,7 +107,7 @@ public class AdminMainView extends JFrame {
 
     private JPanel createSidebar() {
         sidebar = new JPanel();
-        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
+        sidebar.setLayout(new GridLayout(0, 1, 0, 10));
         sidebar.setBackground(BG_ACCESSIBILITY);
 
         JButton btnDashboard = createSidebarButton("📊  Vue d'ensemble");
@@ -114,24 +115,25 @@ public class AdminMainView extends JFrame {
         JButton btnComplaints = createSidebarButton("💬  Gérer réclamations");
         JButton btnStats = createSidebarButton("📈  Statistiques globales");
         JButton btnArchives = createSidebarButton("🗄️  Archives du système");
+        JButton btnLogout = createSidebarButton("🚪  Se déconnecter");
 
         btnDashboard.addActionListener(e -> cardLayout.show(cardPanel, "DASHBOARD"));
         btnDossiers.addActionListener(e -> cardLayout.show(cardPanel, "DOSSIERS_LIST"));
         btnComplaints.addActionListener(e -> cardLayout.show(cardPanel, "COMPLAINTS"));
         btnStats.addActionListener(e -> cardLayout.show(cardPanel, "STATS"));
         btnArchives.addActionListener(e -> cardLayout.show(cardPanel, "ARCHIVES"));
+        btnLogout.addActionListener(e -> {
+            dispose();
+            new LoginView();
+        });
 
         sidebar.add(btnDashboard);
-        sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
         sidebar.add(btnDossiers);
-        sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
         sidebar.add(btnComplaints);
-        sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
         sidebar.add(btnStats);
-        sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
         sidebar.add(btnArchives);
+        sidebar.add(btnLogout);
 
-        sidebar.add(Box.createVerticalGlue());
         return sidebar;
     }
 
@@ -141,19 +143,22 @@ public class AdminMainView extends JFrame {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getBackground());
+                if (isAccessibilityMode) {
+                    g2.setColor(getModel().isRollover() ? new Color(0x1F2937) : Color.BLACK);
+                } else {
+                    g2.setColor(getModel().isRollover() ? BORDER_STANDARD : BG_STANDARD);
+                }
                 g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
                 super.paintComponent(g2);
                 g2.dispose();
             }
         };
         button.setFont(new Font("SansSerif", Font.BOLD, 13));
-        button.setForeground(TEXT_ACCESSIBILITY);
-        button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        button.setMaximumSize(new Dimension(180, 40));
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
+        button.setBorderPainted(false);
         button.setHorizontalAlignment(SwingConstants.LEFT);
+        button.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 0));
         return button;
     }
 
@@ -176,6 +181,14 @@ public class AdminMainView extends JFrame {
         logoLabel.setForeground(isAccessibilityMode ? TEXT_ACCESSIBILITY : PURPLE_PRIMARY);
         userLabel.setForeground(currentText);
 
+        if (sidebar != null) {
+            for (Component child : sidebar.getComponents()) {
+                if (child instanceof JButton) {
+                    child.setForeground(currentText);
+                }
+            }
+        }
+
         if (!isInitialSetup && btnAccess != null) {
             if (isAccessibilityMode) {
                 btnAccess.setText("👁️ Mode Accessibilité (AAA) : ON");
@@ -184,8 +197,8 @@ public class AdminMainView extends JFrame {
                 btnAccess.setBorder(new RoundedBorder(12, TEXT_ACCESSIBILITY));
             } else {
                 btnAccess.setText("👁️ Mode Accessibilité (AAA) : OFF");
-                btnAccess.setBackground(TEXT_ACCESSIBILITY);
-                btnAccess.setForeground(Color.BLACK);
+                btnAccess.setBackground(BG_STANDARD);
+                btnAccess.setForeground(TEXT_STANDARD);
                 btnAccess.setBorder(new RoundedBorder(12, BORDER_STANDARD));
             }
         } else if (btnAccess != null) {
@@ -194,7 +207,9 @@ public class AdminMainView extends JFrame {
 
         applyThemeRecursively(this, currentBg, currentText, currentBorder);
 
-        SwingUtilities.updateComponentTreeUI(this);
+        // Remplacement de updateComponentTreeUI pour éviter la récurrence infinie sur le style customisé
+        this.repaint();
+        this.revalidate();
     }
 
     private void applyThemeRecursively(Component comp, Color bg, Color text, Color border) {
@@ -261,7 +276,7 @@ public class AdminMainView extends JFrame {
                         Graphics2D g2 = (Graphics2D) g.create();
                         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                         if (isAccessibilityMode) {
-                            g2.setColor(btn.getModel().isRollover() ? bg.brighter() : bg);
+                            g2.setColor(btn.getModel().isRollover() ? new Color(0x1F2937) : Color.BLACK);
                             g2.fill(new RoundRectangle2D.Float(0, 0, btn.getWidth(), btn.getHeight(), 12, 12));
                             g2.setColor(text);
                             g2.setStroke(new BasicStroke(2.0f));

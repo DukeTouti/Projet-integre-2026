@@ -3,6 +3,7 @@ package views;
 import views.PSHjpanel.*;
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
@@ -19,18 +20,19 @@ public class PshMainView extends JFrame {
     public static final Color PURPLE_PRIMARY = new Color(0x3C3489);
     private final Color BG_STANDARD = new Color(0xF9FAFB);      // Gris ultra-clair pour le relief
     private final Color TEXT_STANDARD = new Color(0x000000);    // Noir absolu pour le texte
-    private final Color BORDER_STANDARD = new Color(0x111827);  // Noir/Anthracite profond pour les contours et séparations
+    private final Color BORDER_STANDARD = new Color(0x111827);  // Contour sombre
+    private final Color BTN_BG_STANDARD = new Color(0xE5E7EB);  // Fond bouton standard sécurisé
 
     // --- PALETTE THÈME ACCESSIBILITÉ (HAUT CONTRASTE SOMBRE) ---
     private final Color BG_ACCESSIBILITY = new Color(0x111827);   // Noir profond
     private final Color TEXT_ACCESSIBILITY = new Color(0xFDE047); // Jaune vif
 
-    private boolean isAccessibilityMode = true;
+    private boolean isAccessibilityMode = false;
     private JButton btnAccess;
 
     public PshMainView() {
         setTitle("UIR · PSH Platform (Espace Étudiant - Haute Visibilité)");
-        setSize(1000, 700);
+        setSize(1050, 750); // 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -45,29 +47,35 @@ public class PshMainView extends JFrame {
         cardPanel = new JPanel(cardLayout);
         cardPanel.setOpaque(false);
 
-        cardPanel.add(new views.PSHjpanel.StudentDashboardPanel(), "DASHBOARD");
-        cardPanel.add(new views.PSHjpanel.NewDossierPanel(), "NEW_DOSSIER");
-        cardPanel.add(new views.PSHjpanel.MyDossiersPanel(), "MY_DOSSIERS");
-        cardPanel.add(new views.PSHjpanel.ComplaintsPanel(), "COMPLAINTS");
-        cardPanel.add(new views.PSHjpanel.StudentProfilePanel(), "PROFILE");
+        // Chargement sécurisé des sous-panneaux
+        try {
+            cardPanel.add(new views.PSHjpanel.StudentDashboardPanel(), "DASHBOARD");
+            cardPanel.add(new views.PSHjpanel.NewDossierPanel(), "NEW_DOSSIER");
+            cardPanel.add(new views.PSHjpanel.MyDossiersPanel(), "MY_DOSSIERS");
+            cardPanel.add(new views.PSHjpanel.ComplaintsPanel(), "COMPLAINTS");
+            cardPanel.add(new views.PSHjpanel.StudentProfilePanel(), "PROFILE");
+        } catch (Exception e) {
+            System.err.println("Note : Certains sous-panels graphiques ne sont pas encore instanciés : " + e.getMessage());
+        }
 
         contentWrapper = new JPanel(new BorderLayout());
         contentWrapper.setOpaque(false);
         contentWrapper.add(cardPanel, BorderLayout.CENTER);
         add(contentWrapper, BorderLayout.CENTER);
 
-        // Initialisation du thème par défaut
+        // Application initiale du thème
         toggleTheme();
+        
         setVisible(true);
     }
 
     private JPanel createNavbar() {
-        JPanel panel = new JPanel(new BorderLayout(20, 0));
-        panel.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
+        navbar = new JPanel(new BorderLayout(20, 0));
+        navbar.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
 
         logoLabel = new JLabel("🎓 UIR ACCESSIBILITÉ");
         logoLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
-        panel.add(logoLabel, BorderLayout.WEST);
+        navbar.add(logoLabel, BorderLayout.WEST);
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
         rightPanel.setOpaque(false);
@@ -81,7 +89,11 @@ public class PshMainView extends JFrame {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getBackground());
+                if (isAccessibilityMode) {
+                    g2.setColor(getModel().isRollover() ? new Color(0x1F2937) : Color.BLACK);
+                } else {
+                    g2.setColor(getModel().isRollover() ? new Color(0xD1D5DB) : Color.WHITE);
+                }
                 g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
                 super.paintComponent(g2);
                 g2.dispose();
@@ -90,20 +102,25 @@ public class PshMainView extends JFrame {
         btnAccess.setFont(new Font("SansSerif", Font.BOLD, 12));
         btnAccess.setContentAreaFilled(false);
         btnAccess.setFocusPainted(false);
+        btnAccess.setBorderPainted(false);
         btnAccess.addActionListener(e -> toggleTheme());
         rightPanel.add(btnAccess);
 
-        panel.add(rightPanel, BorderLayout.EAST);
-        return panel;
+        navbar.add(rightPanel, BorderLayout.EAST);
+        return navbar;
     }
 
     private JPanel createSidebar() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createEmptyBorder(30, 15, 30, 15));
+        sidebar = new JPanel();
+        
+        // Liste enrichie avec l'action de déconnexion
+        String[] labels = {"📊 Tableau de bord", "📁 Nouvelle Demande", "🗂️ Mes Dossiers", "💬 Réclamations", "👤 Mon Profil", "🚪 Se déconnecter"};
+        String[] actions = {"DASHBOARD", "NEW_DOSSIER", "MY_DOSSIERS", "COMPLAINTS", "PROFILE", "LOGOUT"};
 
-        String[] labels = {"📊 Tableau de bord", "📁 Nouvelle Demande", "🗂️ Mes Dossiers", "💬 Réclamations", "👤 Mon Profil"};
-        String[] actions = {"DASHBOARD", "NEW_DOSSIER", "MY_DOSSIERS", "COMPLAINTS", "PROFILE"};
+        // Utilisation de GridLayout pour forcer le partage équitable de l'espace vertical disponible
+        sidebar.setLayout(new GridLayout(labels.length, 1, 0, 12));
+        sidebar.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 15));
+        sidebar.setPreferredSize(new Dimension(230, 0)); // Fixe la largeur de la sidebar
 
         for (int i = 0; i < labels.length; i++) {
             final String target = actions[i];
@@ -112,25 +129,45 @@ public class PshMainView extends JFrame {
                 protected void paintComponent(Graphics g) {
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setColor(getBackground());
+                    if (isAccessibilityMode) {
+                        g2.setColor(getModel().isRollover() ? new Color(0x1F2937) : Color.BLACK);
+                    } else {
+                        g2.setColor(getModel().isRollover() ? new Color(0xD1D5DB) : Color.WHITE);
+                    }
                     g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
                     super.paintComponent(g2);
                     g2.dispose();
                 }
             };
             btn.setFont(new Font("SansSerif", Font.BOLD, 13));
-            btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-            btn.setMaximumSize(new Dimension(200, 40));
             btn.setContentAreaFilled(false);
             btn.setFocusPainted(false);
-            btn.addActionListener(e -> cardLayout.show(cardPanel, target));
-
-            panel.add(btn);
-            if (i < labels.length - 1) {
-                panel.add(Box.createRigidArea(new Dimension(0, 12)));
+            btn.setBorderPainted(false);
+            btn.setHorizontalAlignment(SwingConstants.LEFT);
+            btn.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 0));
+            
+            // Gestion spécifique pour le bouton se déconnecter
+            if ("LOGOUT".equals(target)) {
+                btn.addActionListener(e -> {
+                    int option = JOptionPane.showConfirmDialog(
+                            this, 
+                            "Voulez-vous vraiment vous déconnecter de la plateforme PSH ?", 
+                            "Confirmation de déconnexion", 
+                            JOptionPane.YES_NO_OPTION, 
+                            JOptionPane.QUESTION_MESSAGE
+                    );
+                    if (option == JOptionPane.YES_OPTION) {
+                        this.dispose(); // Ferme la vue principale
+                        new LoginView(); // Redirection vers la page de login
+                    }
+                });
+            } else {
+                btn.addActionListener(e -> cardLayout.show(cardPanel, target));
             }
+
+            sidebar.add(btn);
         }
-        return panel;
+        return sidebar;
     }
 
     private void toggleTheme() {
@@ -139,13 +176,13 @@ public class PshMainView extends JFrame {
         Color currentBg = isAccessibilityMode ? BG_ACCESSIBILITY : BG_STANDARD;
         Color currentText = isAccessibilityMode ? TEXT_ACCESSIBILITY : TEXT_STANDARD;
         Color currentBorder = isAccessibilityMode ? TEXT_ACCESSIBILITY : BORDER_STANDARD;
-
-        // La ligne de démarcation devient le Violet UIR en mode clair pour trancher magnifiquement
         Color separatorColor = isAccessibilityMode ? TEXT_ACCESSIBILITY : PURPLE_PRIMARY;
 
         getContentPane().setBackground(currentBg);
 
-        // Application de la bordure de séparation nette (2px d'épaisseur)
+        if (navbar != null) navbar.setBackground(currentBg);
+        if (sidebar != null) sidebar.setBackground(currentBg);
+
         if (contentWrapper != null) {
             contentWrapper.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createMatteBorder(2, 2, 0, 0, separatorColor),
@@ -153,27 +190,103 @@ public class PshMainView extends JFrame {
             ));
         }
 
+        if (btnAccess != null) {
+            btnAccess.setText(isAccessibilityMode ? "👁️ Mode Contraste Élevé : ON" : "👁️ Mode Contraste Élevé : OFF");
+        }
+
         applyThemeRecursively(this, currentBg, currentText, currentBorder);
-        repaint();
+        
+        this.revalidate();
+        this.repaint();
     }
 
     private void applyThemeRecursively(Component comp, Color bg, Color text, Color border) {
-        if (comp instanceof JPanel) {
-            comp.setBackground(bg);
-        } else if (comp instanceof JLabel) {
-            comp.setForeground(text);
-        } else if (comp instanceof JRadioButton) {
-            comp.setForeground(text);
-        } else if (comp instanceof JButton) {
+        if (comp instanceof JPanel || comp instanceof JLabel || comp instanceof JRadioButton || comp instanceof JCheckBox) {
             comp.setBackground(bg);
             comp.setForeground(text);
+        }
+
+        if (comp instanceof JTextArea || comp instanceof JTextField) {
+            comp.setBackground(bg);
+            comp.setForeground(text);
+            ((JComponent) comp).setBorder(BorderFactory.createCompoundBorder(
+                    new RoundedBorder(10, isAccessibilityMode ? text : border),
+                    BorderFactory.createEmptyBorder(5, 8, 5, 8)
+            ));
+            if (comp instanceof JTextArea) ((JTextArea) comp).setCaretColor(text);
+            if (comp instanceof JTextField) ((JTextField) comp).setCaretColor(text);
+        }
+
+        if (comp instanceof JTable) {
+            JTable table = (JTable) comp;
+            table.setBackground(bg);
+            table.setForeground(text);
+            table.setGridColor(border);
+            table.setSelectionBackground(isAccessibilityMode ? new Color(0x374151) : PURPLE_PRIMARY);
+            table.setSelectionForeground(isAccessibilityMode ? text : Color.WHITE);
+
+            JTableHeader header = table.getTableHeader();
+            if (header != null) {
+                header.setBackground(isAccessibilityMode ? new Color(0x1F2937) : border);
+                header.setForeground(text);
+            }
+        }
+
+        if (comp instanceof JScrollPane) {
+            ((JScrollPane) comp).setBorder(new RoundedBorder(12, border));
+            ((JScrollPane) comp).getViewport().setBackground(bg);
+        }
+
+        if (comp instanceof JComboBox) {
+            comp.setBackground(bg);
+            comp.setForeground(text);
+            ((JComboBox<?>) comp).setBorder(new RoundedBorder(10, isAccessibilityMode ? text : border));
+
+            Object renderer = ((JComboBox<?>) comp).getRenderer();
+            if (renderer instanceof JComponent) {
+                ((JComponent) renderer).setBackground(bg);
+                ((JComponent) renderer).setForeground(text);
+            }
+        }
+
+        if (comp instanceof JButton) {
             JButton b = (JButton) comp;
-            if (b == btnAccess) {
-                b.setBorder(new RoundedBorder(12, border));
-            } else if (b.getParent() == sidebar) {
-                b.setBorder(new RoundedBorder(12, border));
+            b.setForeground(text);
+            
+            if (b == btnAccess || b.getParent() == sidebar) {
+                b.setBorder(BorderFactory.createCompoundBorder(
+                        new RoundedBorder(12, border),
+                        BorderFactory.createEmptyBorder(0, 15, 0, 0)
+                ));
             } else {
-                b.setBorder(new RoundedBorder(15, border));
+                b.setContentAreaFilled(false);
+                b.setOpaque(false);
+                b.setBorderPainted(false);
+                b.setFocusPainted(false);
+
+                b.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
+                    @Override
+                    public void paint(Graphics g, JComponent jc) {
+                        Graphics2D g2 = (Graphics2D) g.create();
+                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                        if (isAccessibilityMode) {
+                            g2.setColor(b.getModel().isRollover() ? new Color(0x1F2937) : Color.BLACK);
+                            g2.fill(new RoundRectangle2D.Float(0, 0, b.getWidth(), b.getHeight(), 12, 12));
+                            g2.setColor(text);
+                            g2.setStroke(new BasicStroke(2.0f));
+                            g2.draw(new RoundRectangle2D.Float(1, 1, b.getWidth() - 2, b.getHeight() - 2, 12, 12));
+                        } else {
+                            g2.setColor(b.getModel().isRollover() ? BTN_BG_STANDARD.darker() : BTN_BG_STANDARD);
+                            g2.fill(new RoundRectangle2D.Float(0, 0, b.getWidth(), b.getHeight(), 12, 12));
+                            g2.setColor(border);
+                            g2.setStroke(new BasicStroke(1.0f));
+                            g2.draw(new RoundRectangle2D.Float(0, 0, b.getWidth() - 1, b.getHeight() - 1, 12, 12));
+                        }
+                        g2.dispose();
+                        super.paint(g, jc);
+                    }
+                });
+                b.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
             }
         }
 
@@ -198,7 +311,7 @@ public class PshMainView extends JFrame {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setColor(color);
-            g2.setStroke(new BasicStroke(1.5f)); // Épaisseur de trait augmentée pour accentuer les contours
+            g2.setStroke(new BasicStroke(1.5f));
             g2.draw(new RoundRectangle2D.Float(x, y, width - 1, height - 1, radius, radius));
             g2.dispose();
         }
@@ -209,7 +322,7 @@ public class PshMainView extends JFrame {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Exception e) {
-                e.printStackTrace();
+                // Reste silencieux si y'as échec
             }
             new PshMainView();
         });
