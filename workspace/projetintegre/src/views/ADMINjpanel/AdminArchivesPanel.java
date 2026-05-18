@@ -26,7 +26,6 @@ public class AdminArchivesPanel extends JPanel {
 
         JLabel titleLabel = new JLabel("🗄️ Consultation des Historiques Éteints (Classe Archive)");
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
-        add(titleLabel, BorderLayout.NORTH);
 
         JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         topBar.setOpaque(false);
@@ -40,7 +39,7 @@ public class AdminArchivesPanel extends JPanel {
 
         JTextField txtQuery = new JTextField(15);
         txtQuery.setMaximumSize(new Dimension(150, 30));
-        JButton btnSearch    = new JButton("🔍 Rechercher");
+        JButton btnSearch     = new JButton("🔍 Rechercher");
         JButton btnActualiser = new JButton("🔃 Tout afficher");
 
         topBar.add(cmbFiltre);
@@ -48,7 +47,12 @@ public class AdminArchivesPanel extends JPanel {
         topBar.add(btnSearch);
         topBar.add(btnActualiser);
 
-        add(topBar, BorderLayout.NORTH);
+        // Regrouper titre + barre de recherche dans un seul panneau NORTH
+        JPanel northPanel = new JPanel(new BorderLayout(0, 10));
+        northPanel.setOpaque(false);
+        northPanel.add(titleLabel, BorderLayout.NORTH);
+        northPanel.add(topBar, BorderLayout.SOUTH);
+        add(northPanel, BorderLayout.NORTH);
 
         tableModel = new DefaultTableModel(COLUMNS, 0) {
             @Override

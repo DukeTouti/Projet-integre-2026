@@ -54,15 +54,17 @@ public class AdminDossiersListPanel extends JPanel {
         JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         controlPanel.setOpaque(false);
 
-        JButton btnAccepter  = new JButton("✅ Accepter");
-        JButton btnRefuser   = new JButton("❌ Refuser");
-        JButton btnEnCours   = new JButton("🔄 Mettre EN_COURS");
+        JButton btnAccepter   = new JButton("✅ Accepter");
+        JButton btnRefuser    = new JButton("❌ Refuser");
+        JButton btnEnCours    = new JButton("🔄 Mettre EN_COURS");
+        JButton btnArchiver   = new JButton("📦 Archiver");
         JButton btnActualiser = new JButton("🔃 Actualiser");
 
         controlPanel.add(btnActualiser);
         controlPanel.add(btnEnCours);
         controlPanel.add(btnAccepter);
         controlPanel.add(btnRefuser);
+        controlPanel.add(btnArchiver);
         add(controlPanel, BorderLayout.SOUTH);
 
         // --- ACTIONS ---
@@ -70,6 +72,7 @@ public class AdminDossiersListPanel extends JPanel {
         btnRefuser.addActionListener(e  -> changerStatut(StatutDossier.REFUSEE));
         btnEnCours.addActionListener(e  -> changerStatut(StatutDossier.EN_COURS));
         btnActualiser.addActionListener(e -> chargerDonnees());
+        btnArchiver.addActionListener(e -> archiverDossier());
 
         // Chargement initial
         chargerDonnees();
@@ -93,6 +96,38 @@ public class AdminDossiersListPanel extends JPanel {
                     sdf.format(d.getDateCreation()),
                     d.getStatut()
             });
+        }
+    }
+
+    // ================================================================
+    // ARCHIVAGE
+    // ================================================================
+
+    private void archiverDossier() {
+        int row = table.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Sélectionnez un dossier dans la liste.",
+                    "Sélection requise", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        Demande demande = demandes.get(row);
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Archiver le dossier #" + demande.getId() + " ? Cette action est irréversible.",
+                "Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        if (confirm != JOptionPane.YES_OPTION) return;
+
+        boolean ok = DossierController.archiverDossier(demande);
+        if (ok) {
+            demandes.remove(row);
+            tableModel.removeRow(row);
+            JOptionPane.showMessageDialog(this,
+                    "Dossier archivé avec succès.",
+                    "Succès", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Erreur lors de l'archivage.",
+                    "Erreur", JOptionPane.ERROR_MESSAGE);
         }
     }
 

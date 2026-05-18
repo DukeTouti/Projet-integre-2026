@@ -17,7 +17,10 @@ public class BD {
     // =====CONNEXION =====
     public static Connection getConnection() {
         try {
-            if (conn == null || conn.isClosed()) {
+            if (conn == null || conn.isClosed() || !conn.isValid(2)) {
+                if (conn != null) {
+                    try { conn.close(); } catch (SQLException ignored) {}
+                }
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 conn = DriverManager.getConnection(URL, USER, PASSWORD);
                 System.out.println("Connexion BD établie.");
