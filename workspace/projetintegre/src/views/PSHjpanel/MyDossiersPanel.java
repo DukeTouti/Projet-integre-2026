@@ -1,14 +1,22 @@
 package views.PSHjpanel;
 
+import controllers.DemandeController;
+import controllers.ReclamationController;
+import models.Demande;
+import models.Reclamation;
+import models.Utilisateur;
+
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 public class MyDossiersPanel extends JPanel {
 
-    public MyDossiersPanel() {
+    public MyDossiersPanel(Utilisateur user) {
         setLayout(new BorderLayout(20, 20));
         setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
@@ -18,18 +26,38 @@ public class MyDossiersPanel extends JPanel {
 
         String[] columnNames = {"ID Dossier", "Type de Dossier", "Description", "Date Création", "Date MAJ", "Statut"};
 
-        Object[][] data = {
-                {1, "DEMANDE (AMENAGEMENT_EXAMEN)", "Demande de tiers-temps pour le CF", "12/05/2026", "15/05/2026", "ACCEPTEE"},
-                {2, "RECLAMATION", "Contestation refus aménagement sur module Compilation", "14/05/2026", "14/05/2026", "EN_ATTENTE"},
-                {3, "DEMANDE (ACCESSIBILITE)", "Relocalisation des cours de HPC au RDC", "10/09/2025", "12/09/2025", "CLOTUREE"}
-        };
-
-        DefaultTableModel model = new DefaultTableModel(data, columnNames) {
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+        List<Demande> demandes = DemandeController.getMesDemandes(user.getId());
+        for (Demande d : demandes) {
+            model.addRow(new Object[]{
+                d.getId(),
+                "DEMANDE (" + d.getTypeDemande().name() + ")",
+                d.getDescription(),
+                d.getDateCreation() != null ? sdf.format(d.getDateCreation()) : "-",
+                d.getDateMaj()      != null ? sdf.format(d.getDateMaj())      : "-",
+                d.getStatutDossier().name()
+            });
+        }
+
+        List<Reclamation> reclamations = ReclamationController.getMesReclamations(user.getId());
+        for (Reclamation r : reclamations) {
+            model.addRow(new Object[]{
+                r.getId(),
+                "RECLAMATION",
+                r.getDescription(),
+                r.getDateCreation() != null ? sdf.format(r.getDateCreation()) : "-",
+                r.getDateMaj()      != null ? sdf.format(r.getDateMaj())      : "-",
+                r.getStatutDossier().name()
+            });
+        }
 
         JTable table = new JTable(model);
         table.setRowHeight(35);

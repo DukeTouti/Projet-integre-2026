@@ -1,6 +1,9 @@
 package views;
 
 import views.ADMINjpanel.*;
+import controllers.AuthController;
+import models.Administrateur;
+import models.Utilisateur;
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import javax.swing.table.JTableHeader;
@@ -93,7 +96,12 @@ public class AdminMainView extends JFrame {
             updateApplicationTheme(false);
         });
 
-        userLabel = new JLabel("Scolarité Centrale · Admin [Dept: Direction] ");
+        Utilisateur _u = AuthController.getUtilisateurConnecte();
+        Administrateur _admin = (_u instanceof Administrateur) ? (Administrateur) _u : null;
+        String _dept = (_admin != null && _admin.getDepartement() != null && !_admin.getDepartement().isEmpty())
+                       ? _admin.getDepartement() : "Non renseigné";
+        String _nomAdmin = _admin != null ? _admin.getNomComplet() : "Inconnu";
+        userLabel = new JLabel(_nomAdmin + " · Admin [Dept: " + _dept + "] ");
         userLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
         userLabel.setForeground(TEXT_ACCESSIBILITY);
 

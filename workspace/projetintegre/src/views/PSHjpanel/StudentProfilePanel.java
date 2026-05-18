@@ -1,9 +1,14 @@
 package views.PSHjpanel;
 
+import controllers.AuthController;
+import models.PSH;
+import models.Utilisateur;
+
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
+import java.text.SimpleDateFormat;
 
 public class StudentProfilePanel extends JPanel {
 
@@ -15,29 +20,42 @@ public class StudentProfilePanel extends JPanel {
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
         add(titleLabel, BorderLayout.NORTH);
 
+        Utilisateur u = AuthController.getUtilisateurConnecte();
+        PSH psh = (u instanceof PSH) ? (PSH) u : null;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        String id            = psh != null ? String.valueOf(psh.getId()) : "-";
+        String numero        = psh != null ? psh.getNumeroEtudiant() : "-";
+        String nomPrenom     = psh != null ? psh.getNomComplet() : "-";
+        String email         = psh != null ? psh.getEmail() : "-";
+        String role          = psh != null ? psh.getRole().name() : "-";
+        String typeHandicap  = psh != null ? psh.getTypeHandicap() : "-";
+        String dateInscr     = (psh != null && psh.getDateInscription() != null)
+                               ? sdf.format(psh.getDateInscription()) : "-";
+
         JPanel infoGrid = new JPanel(new GridLayout(7, 2, 15, 15));
         infoGrid.setOpaque(false);
 
         infoGrid.add(createBoldLabel("ID Système (id) :"));
-        infoGrid.add(new JLabel("42"));
+        infoGrid.add(new JLabel(id));
 
         infoGrid.add(createBoldLabel("Numéro Étudiant (numeroEtudiant) :"));
-        infoGrid.add(new JLabel("UIR-2023-4589"));
+        infoGrid.add(new JLabel(numero));
 
         infoGrid.add(createBoldLabel("Nom & Prénom (nom, prenom) :"));
-        infoGrid.add(new JLabel("Jidal Ilyas"));
+        infoGrid.add(new JLabel(nomPrenom));
 
         infoGrid.add(createBoldLabel("Adresse Email (email) :"));
-        infoGrid.add(new JLabel("ilyas.jidal@uir.ac.ma"));
+        infoGrid.add(new JLabel(email));
 
         infoGrid.add(createBoldLabel("Rôle Utilisateur (role) :"));
-        infoGrid.add(new JLabel("PSH"));
+        infoGrid.add(new JLabel(role));
 
         infoGrid.add(createBoldLabel("Type de Handicap (typeHandicap) :"));
-        infoGrid.add(new JLabel("Moteur (Permanent)"));
+        infoGrid.add(new JLabel(typeHandicap));
 
         infoGrid.add(createBoldLabel("Date d'Inscription (dateInscription) :"));
-        infoGrid.add(new JLabel("15/09/2023"));
+        infoGrid.add(new JLabel(dateInscr));
 
         JPanel cardWrapper = new JPanel(new BorderLayout()) {
             @Override

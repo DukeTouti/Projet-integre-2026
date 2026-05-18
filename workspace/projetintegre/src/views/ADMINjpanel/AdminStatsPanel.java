@@ -1,11 +1,22 @@
 package views.ADMINjpanel;
 
+import controllers.StatistiqueController;
+import models.Statistique;
+
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class AdminStatsPanel extends JPanel {
+
+    private JLabel lblTauxAccept;
+    private JLabel lblTauxRefus;
+    private JLabel lblNbDemandes;
+    private JLabel lblNbReclamations;
 
     public AdminStatsPanel() {
         setLayout(new BorderLayout(20, 20));
@@ -36,27 +47,57 @@ public class AdminStatsPanel extends JPanel {
         JButton btnCalculer = new JButton("⚙️ Exécuter filtrerParPeriode()");
         dateFilterPanel.add(btnCalculer);
 
+        // Labels dynamiques
+        lblTauxAccept      = new JLabel("...");
+        lblTauxRefus       = new JLabel("...");
+        lblNbDemandes      = new JLabel("...");
+        lblNbReclamations  = new JLabel("...");
+
         JPanel resultsPanel = new JPanel(new GridLayout(4, 2, 10, 15));
         resultsPanel.setOpaque(false);
         resultsPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
 
         resultsPanel.add(new JLabel("Taux d'Acceptation Global (getTauxAcceptation) :"));
-        resultsPanel.add(new JLabel("78.5 %"));
+        resultsPanel.add(lblTauxAccept);
 
         resultsPanel.add(new JLabel("Taux de Refus Global (getTauxRefus) :"));
-        resultsPanel.add(new JLabel("21.5 %"));
+        resultsPanel.add(lblTauxRefus);
 
         resultsPanel.add(new JLabel("Nombre total de Demandes (getNbDemandes) :"));
-        resultsPanel.add(new JLabel("156 demandes"));
+        resultsPanel.add(lblNbDemandes);
 
         resultsPanel.add(new JLabel("Nombre total de Réclamations (getNbReclamations) :"));
-        resultsPanel.add(new JLabel("12 réclamations"));
+        resultsPanel.add(lblNbReclamations);
 
         mainForm.add(dateFilterPanel);
         mainForm.add(Box.createRigidArea(new Dimension(0, 20)));
         mainForm.add(resultsPanel);
 
         add(mainForm, BorderLayout.CENTER);
+
+        btnCalculer.addActionListener(e -> {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            try {
+                Date debut = sdf.parse(txtDebut.getText().trim());
+                // Fin = fin de journée
+                Date fin = new Date(sdf.parse(txtFin.getText().trim()).getTime() + 86399999L);
+                afficherStats(StatistiqueController.getStatistiques(debut, fin));
+            } catch (ParseException ex) {
+                JOptionPane.showMessageDialog(this,
+                        "Format de date invalide. Utilisez JJ/MM/AAAA.",
+                        "Erreur", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        // Chargement initial — toutes périodes confondues
+        afficherStats(StatistiqueController.getStatistiquesGlobales());
+    }
+
+    private void afficherStats(Statistique stat) {
+        lblTauxAccept.setText(String.format("%.1f %%", stat.getTauxAcceptation()));
+        lblTauxRefus.setText(String.format("%.1f %%", stat.getTauxRefus()));
+        lblNbDemandes.setText(stat.getNbDemandes() + " demandes");
+        lblNbReclamations.setText(stat.getNbReclamations() + " réclamations");
     }
 
     private static class RoundedBorder extends AbstractBorder {

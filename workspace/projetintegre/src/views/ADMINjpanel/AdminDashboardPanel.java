@@ -1,5 +1,12 @@
 package views.ADMINjpanel;
 
+import controllers.ArchiveController;
+import controllers.AuthController;
+import controllers.DemandeController;
+import controllers.ReclamationController;
+import models.Administrateur;
+import models.Utilisateur;
+
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import java.awt.*;
@@ -18,15 +25,25 @@ public class AdminDashboardPanel extends JPanel {
         JPanel centerPanel = new JPanel(new BorderLayout(0, 30));
         centerPanel.setOpaque(false);
 
-        // Grille des statistiques (3 colonnes)
+        // Chargement des chiffres réels depuis la BD
+        int nbDemandes     = DemandeController.getToutesDemandes().size();
+        int nbReclamations = ReclamationController.getToutesReclamations().size();
+        int nbArchives     = ArchiveController.getTousArchives().size();
+
         JPanel statsGrid = new JPanel(new GridLayout(1, 3, 20, 0));
         statsGrid.setOpaque(false);
-        statsGrid.add(createSummaryCard("Total Demandes Nues", "24", new Color(0x3B82F6)));
-        statsGrid.add(createSummaryCard("Réclamations Actives", "5", new Color(0xEF4444)));
-        statsGrid.add(createSummaryCard("Dossiers Archivés", "142", new Color(0x10B981)));
+        statsGrid.add(createSummaryCard("Total Demandes Actives",  String.valueOf(nbDemandes),     new Color(0x3B82F6)));
+        statsGrid.add(createSummaryCard("Réclamations Actives",    String.valueOf(nbReclamations), new Color(0xEF4444)));
+        statsGrid.add(createSummaryCard("Dossiers Archivés",       String.valueOf(nbArchives),     new Color(0x10B981)));
         centerPanel.add(statsGrid, BorderLayout.NORTH);
 
-        // Zone Profil Session customisée avec angles arrondis (remplace le TitledBorder natif)
+        // Profil admin connecté
+        Utilisateur u = AuthController.getUtilisateurConnecte();
+        Administrateur admin = (u instanceof Administrateur) ? (Administrateur) u : null;
+        String matricule = admin != null ? admin.getMatricule() : "-";
+        String dept      = (admin != null && admin.getDepartement() != null && !admin.getDepartement().isEmpty())
+                           ? admin.getDepartement() : "Non renseigné";
+
         JPanel infoPanel = new JPanel(new BorderLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -34,14 +51,14 @@ public class AdminDashboardPanel extends JPanel {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(getBackground());
                 g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 16, 16));
-                g2.setColor(new Color(0x374151)); // Bordure grise foncée
+                g2.setColor(new Color(0x374151));
                 g2.setStroke(new BasicStroke(1.5f));
                 g2.draw(new RoundRectangle2D.Double(1, 1, getWidth() - 2, getHeight() - 2, 16, 16));
                 g2.dispose();
             }
         };
         infoPanel.setOpaque(false);
-        infoPanel.setBackground(new Color(0x1F2937)); // Fond légèrement plus clair pour détacher le profil
+        infoPanel.setBackground(new Color(0x1F2937));
         infoPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
 
         JLabel lblSectionTitle = new JLabel("👤 Profil de session connecté");
@@ -54,9 +71,9 @@ public class AdminDashboardPanel extends JPanel {
         profileGrid.setBorder(BorderFactory.createEmptyBorder(15, 0, 10, 0));
 
         profileGrid.add(createLabel("Matricule Admin :", true));
-        profileGrid.add(createLabel("ADM-2026-XYZ", false));
+        profileGrid.add(createLabel(matricule, false));
         profileGrid.add(createLabel("Département d'Attache :", true));
-        profileGrid.add(createLabel("Scolarité & Inclusion Architecture", false));
+        profileGrid.add(createLabel(dept, false));
 
         infoPanel.add(profileGrid, BorderLayout.CENTER);
         centerPanel.add(infoPanel, BorderLayout.CENTER);
@@ -86,12 +103,12 @@ public class AdminDashboardPanel extends JPanel {
             }
         };
         card.setOpaque(false);
-        card.setBackground(new Color(0x111827)); // Assorti au noir profond
+        card.setBackground(new Color(0x111827));
         card.setBorder(BorderFactory.createEmptyBorder(18, 20, 18, 20));
 
         JLabel lblT = new JLabel(title);
         lblT.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        lblT.setForeground(new Color(0x9CA3AF)); // Gris clair text muted
+        lblT.setForeground(new Color(0x9CA3AF));
 
         JLabel lblC = new JLabel(count);
         lblC.setFont(new Font("SansSerif", Font.BOLD, 26));

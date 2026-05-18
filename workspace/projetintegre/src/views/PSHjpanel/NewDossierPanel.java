@@ -1,5 +1,11 @@
 package views.PSHjpanel;
 
+import controllers.DemandeController;
+import models.Demande;
+import models.PieceJustificative;
+import models.Utilisateur;
+import models.enums.TypeDemande;
+
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import java.awt.*;
@@ -11,8 +17,18 @@ public class NewDossierPanel extends JPanel {
     private JComboBox<String> cmbTypeAmenagement;
     private JLabel lblFilePath;
     private File selectedFile;
+    private Utilisateur user;
 
-    public NewDossierPanel() {
+    // Index du combo → valeur TypeDemande (évite valueOf() sur le libellé d'affichage)
+    private static final TypeDemande[] TYPE_MAP = {
+        TypeDemande.AMENAGEMENT_EXAMEN,
+        TypeDemande.ACCESSIBILITE,
+        TypeDemande.AUTRE,
+        TypeDemande.ACCOMPAGNEMENT
+    };
+
+    public NewDossierPanel(Utilisateur user) {
+        this.user = user;
         setLayout(new BorderLayout(20, 20));
         setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
@@ -158,14 +174,28 @@ public class NewDossierPanel extends JPanel {
         btnSoumettre.setPreferredSize(new Dimension(getWidth(), 42));
 
         btnSoumettre.addActionListener(e -> {
-            if (txtDescription.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "La description est obligatoire (Attribut Dossier.description)", "Erreur", JOptionPane.ERROR_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this, "Dossier enregistré ! Objet Dossier instancié avec sa PieceJustificative.", "Succès", JOptionPane.INFORMATION_MESSAGE);
-                txtDescription.setText("");
-                lblFilePath.setText("Aucun fichier sélectionné");
-                selectedFile = null;
+            String desc = txtDescription.getText().trim();
+            if (desc.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "La description est obligatoire.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+            TypeDemande type = TYPE_MAP[cmbTypeAmenagement.getSelectedIndex()];
+            Demande demande = new Demande(desc, user, type);
+            int id = DemandeController.creerDemande(demande);
+            if (id == -1) {
+                JOptionPane.showMessageDialog(this, "Erreur lors de l'enregistrement en base de données.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (selectedFile != null) {
+                String nom = selectedFile.getName();
+                String chemin = selectedFile.getAbsolutePath();
+                String ext = nom.contains(".") ? nom.substring(nom.lastIndexOf('.') + 1).toUpperCase() : "UNKNOWN";
+                DemandeController.ajouterPiece(demande, new PieceJustificative(nom, chemin, ext));
+            }
+            JOptionPane.showMessageDialog(this, "Demande soumise avec succès (ID #" + id + ").", "Succès", JOptionPane.INFORMATION_MESSAGE);
+            txtDescription.setText("");
+            lblFilePath.setText("Aucun fichier sélectionné");
+            selectedFile = null;
         });
 
         add(btnSoumettre, BorderLayout.SOUTH);

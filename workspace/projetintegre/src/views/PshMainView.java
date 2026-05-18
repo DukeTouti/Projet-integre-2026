@@ -1,6 +1,7 @@
 package views;
 
 import views.PSHjpanel.*;
+import controllers.AuthController;
 import controllers.TTSController;
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
@@ -50,9 +51,9 @@ public class PshMainView extends JFrame {
 
         try {
             cardPanel.add(new views.PSHjpanel.StudentDashboardPanel(), "DASHBOARD");
-            cardPanel.add(new views.PSHjpanel.NewDossierPanel(), "NEW_DOSSIER");
-            cardPanel.add(new views.PSHjpanel.MyDossiersPanel(), "MY_DOSSIERS");
-            cardPanel.add(new views.PSHjpanel.ComplaintsPanel(), "COMPLAINTS");
+            cardPanel.add(new views.PSHjpanel.NewDossierPanel(AuthController.getUtilisateurConnecte()), "NEW_DOSSIER");
+            cardPanel.add(new views.PSHjpanel.MyDossiersPanel(AuthController.getUtilisateurConnecte()), "MY_DOSSIERS");
+            cardPanel.add(new views.PSHjpanel.ComplaintsPanel(AuthController.getUtilisateurConnecte()), "COMPLAINTS");
             cardPanel.add(new views.PSHjpanel.StudentProfilePanel(), "PROFILE");
         } catch (Exception e) {
             System.err.println("Note : Certains sous-panels graphiques ne sont pas encore instanciés : " + e.getMessage());
@@ -78,7 +79,9 @@ public class PshMainView extends JFrame {
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
         rightPanel.setOpaque(false);
 
-        userLabel = new JLabel("Étudiant : Ilyas Jidal (3A Cybersécurité)");
+        models.Utilisateur u = AuthController.getUtilisateurConnecte();
+        String nomAffiche = (u != null) ? u.getNomComplet() : "Inconnu";
+        userLabel = new JLabel("Étudiant : " + nomAffiche);
         userLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
         rightPanel.add(userLabel);
 

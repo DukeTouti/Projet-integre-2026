@@ -1,9 +1,16 @@
 package views.PSHjpanel;
 
+import controllers.DemandeController;
+import controllers.ReclamationController;
+import models.Demande;
+import models.Reclamation;
+import models.Utilisateur;
+
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
+import java.util.List;
 
 public class ComplaintsPanel extends JPanel {
     private JComboBox<String> comboDemandesTarget;
@@ -11,8 +18,13 @@ public class ComplaintsPanel extends JPanel {
     private JRadioButton rbLinked;
     private JRadioButton rbGeneral;
     private JLabel lblTarget;
+    private Utilisateur user;
+    private List<Demande> mesDemandes;
 
-    public ComplaintsPanel() {
+    public ComplaintsPanel(Utilisateur user) {
+        this.user = user;
+        this.mesDemandes = DemandeController.getMesDemandes(user.getId());
+
         setLayout(new BorderLayout(20, 20));
         setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
@@ -41,8 +53,15 @@ public class ComplaintsPanel extends JPanel {
         lblTarget.setFont(new Font("SansSerif", Font.BOLD, 13));
         lblTarget.setEnabled(false);
 
-        String[] demandesFictives = { "Sélectionnez une demande...", "Demande #1042 - Aménagement Examen Math", "Demande #1089 - Accès Ascenseur Bloc B" };
-        comboDemandesTarget = new JComboBox<>(demandesFictives) {
+        // Chargement réel des demandes (index 0 = placeholder, 1+ = demandes réelles)
+        String[] items = new String[mesDemandes.size() + 1];
+        items[0] = "Sélectionnez une demande...";
+        for (int i = 0; i < mesDemandes.size(); i++) {
+            Demande d = mesDemandes.get(i);
+            items[i + 1] = "Demande #" + d.getId() + " - " + d.getTypeDemande().name() + " (" + d.getStatutDossier().name() + ")";
+        }
+
+        comboDemandesTarget = new JComboBox<>(items) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -158,16 +177,26 @@ public class ComplaintsPanel extends JPanel {
 
             if (motif.isEmpty() || (rbLinked.isSelected() && selectedIndex <= 0)) {
                 JOptionPane.showMessageDialog(this, "Tous les champs requis n'ont pas été remplis ou aucune demande n'a été sélectionnée.", "Erreur", JOptionPane.ERROR_MESSAGE);
-            } else {
-                if (rbLinked.isSelected()) {
-                    String item = (String) comboDemandesTarget.getSelectedItem();
-                    JOptionPane.showMessageDialog(this, "Réclamation liée à la \"" + item + "\" envoyée avec succès !", "Succès", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Réclamation générale hors dossier envoyée avec succès !", "Succès", JOptionPane.INFORMATION_MESSAGE);
-                }
-                comboDemandesTarget.setSelectedIndex(0);
-                txtMotifReclamation.setText("");
+                return;
             }
+
+            Reclamation reclamation;
+            if (rbLinked.isSelected()) {
+                Demande demandeLiee = mesDemandes.get(selectedIndex - 1);
+                reclamation = new Reclamation(motif, user, demandeLiee, motif);
+            } else {
+                reclamation = new Reclamation(motif, user, motif);
+            }
+
+            int id = ReclamationController.creerReclamation(reclamation);
+            if (id == -1) {
+                JOptionPane.showMessageDialog(this, "Erreur lors de l'envoi. Vérifiez la connexion à la base de données.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            JOptionPane.showMessageDialog(this, "Réclamation envoyée avec succès (ID #" + id + ").", "Succès", JOptionPane.INFORMATION_MESSAGE);
+            comboDemandesTarget.setSelectedIndex(0);
+            txtMotifReclamation.setText("");
         });
 
         add(btnEnvoyer, BorderLayout.SOUTH);
